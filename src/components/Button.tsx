@@ -36,7 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
         borderRadius: "0.5rem",
         border: "none",
       }}
-      className="px-2 py-6 transition-all duration-300 ease-in-out transform hover:scale-105 hover:brightness-90"
+      className="px-2 py-6 transition-all duration-300 ease-in-out transform hover:scale-105 hover:brightness-90 text-lg font-semibold"
     >
       {content}
     </AntButton>
