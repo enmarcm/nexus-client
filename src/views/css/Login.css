@@ -1,0 +1,67 @@
+@keyframes wipe-out-left {
+  from {
+    clip-path: inset(0 0 0 0);
+    background-color: transparent;
+  }
+  to {
+    clip-path: inset(0 100% 0 0);
+    background-color: red;
+  }
+}
+
+.transition-style-out-wipe-left {
+  animation: 2.5s cubic-bezier(.25, 1, .30, 1) wipe-out-left both;
+}
+
+@keyframes wipe-out-top-right {
+  from {
+    clip-path: polygon(50% -50%, 150% 50%, 50% 150%, -50% 50%);
+    background-color: transparent;
+  }
+  to {
+    clip-path: polygon(50% -50%, 150% 50%, 150% 50%, 50% -50%);
+    background-color: #3A36DB; 
+  }
+}
+
+.transition-style-out-top-wipe {
+  animation: 2.5s cubic-bezier(.25, 1, .30, 1) wipe-out-top-right both;
+}
+
+@keyframes square-out-hesitate {
+  0% {
+    clip-path: inset(0 0 0 0);
+    background-color: transparent;
+  }
+  40% {
+    clip-path: inset(33% 33% 33% 33%);
+    background-color: yellow; /* Cambia el color aquí */
+  }
+  100% {
+    clip-path: inset(100% 100% 100% 100%);
+    background-color: green; /* Cambia el color aquí */
+  }
+}
+
+.transition-square-out-hesitate {
+  animation: 2.5s cubic-bezier(.25, 1, .30, 1) square-out-hesitate both;
+}
+
+@keyframes success-shrink {
+  0% {
+    width: 100%;
+  }
+  50% {
+    width: 30%;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+.transition-success {
+  animation: success-shrink 1.5s forwards;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
