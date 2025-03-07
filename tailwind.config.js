@@ -10,7 +10,8 @@ export default {
     extend: {
       colors: {
         backgroundWhite: "#F1F4FA",
-        primaryLila: "#3A36DB"
+        primaryLila: "#3A36DB",
+        transparentLila: "#3a36db66"
 
       },
       fontFamily: {
