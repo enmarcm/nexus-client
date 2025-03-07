@@ -49,7 +49,7 @@
 
 @keyframes success-shrink {
   0% {
-    width: 100%;
+    width: 60%;
   }
   50% {
     width: 30%;
