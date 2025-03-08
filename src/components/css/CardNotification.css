@@ -1,77 +1,78 @@
-    @keyframes circle-out-center {
-      from {
-        clip-path: circle(0%);
-      }
-      to {
-        clip-path: circle(125%);
-      }
-    }
-    
-    @keyframes slide-up {
-      from {
-        transform: translateY(100%);
-      }
-      to {
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes fade-out {
-      from {
-        opacity: 1;
-      }
-      to {
-        opacity: 0;
-      }
-    }
-    
-    @keyframes bounce {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-10px);
-      }
-    }
-    
-    .card-notification {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .card-notification:hover .card-notification-bg {
-      animation: 3s cubic-bezier(.25, 1, .30, 1) circle-out-center both;
-      background-color: var(--icon-color);
-    }
-    
-    .card-notification:hover .card-notification-content {
-      animation: 1s fade-out both;
-    }
-    
-    .card-notification-bg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: transparent;
-      z-index: 0;
-    }
-    
-    .card-notification-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 2rem;
-      font-weight: bold;
-      z-index: 1;
-      opacity: 0;
-      cursor: pointer;
-    }
-    
-    .card-notification:hover .card-notification-text {
-      opacity: 1;
-      animation: bounce 1s infinite;
-    }
+@keyframes circle-out-center {
+  from {
+    clip-path: circle(0%);
+  }
+  to {
+    clip-path: circle(125%);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.card-notification {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-notification:hover .card-notification-bg {
+  animation: 3s cubic-bezier(0.25, 1, 0.3, 1) circle-out-center both;
+  background-color: var(--icon-color);
+}
+
+.card-notification:hover .card-notification-content {
+  animation: 1s fade-out both;
+}
+
+.card-notification-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  z-index: 0;
+}
+
+.card-notification-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  z-index: 1;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.card-notification:hover .card-notification-text {
+  opacity: 1;
+  animation: bounce 1s infinite;
+}

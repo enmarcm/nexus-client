@@ -1,0 +1,76 @@
+{
+  "firstHomeGraphic": [
+    {
+      "title": "Correos enviados por día",
+      "position": 1,
+      "button": "Correos",
+      "type": "linear",
+      "configElements": {
+        "data": [
+          { "time": "2018-10-11", "value": 52.89 },
+          { "time": "2018-10-12", "value": 51.65 },
+          { "time": "2018-10-13", "value": 51.56 },
+          { "time": "2018-10-14", "value": 50.19 },
+          { "time": "2018-10-15", "value": 51.86 },
+          { "time": "2018-10-16", "value": 51.25 }
+        ],
+        "colors": {
+          "backgroundColor": "transparent",
+          "lineColor": "transparent",
+          "textColor": "#000000",
+          "areaGradientStart": "#3A36DB",
+          "areaGradientEnd": "#FF69B4"
+        }
+      }
+    },
+    {
+      "title": "Mensajes enviados por día",
+      "position": 2,
+      "button": "Mensajes",
+      "type": "linear",
+      "configElements": {
+        "data": [
+          { "time": "2018-10-11", "value": 31.89 },
+          { "time": "2018-10-12", "value": 33.65 },
+          { "time": "2018-10-13", "value": 111.25 },
+          { "time": "2018-10-14", "value": 333.56 },
+          { "time": "2018-10-15", "value": 22.19 },
+          { "time": "2018-10-16", "value": 411111.86 }
+        ],
+        "colors": {
+          "backgroundColor": "transparent",
+          "lineColor": "transparent",
+          "textColor": "#000000",
+          "areaGradientStart": "#3A36DB",
+          "areaGradientEnd": "#FF69B4"
+        }
+      }
+    }
+  ],
+  "secondHomeGraphic": [
+    {
+      "title": "Correos Exitosos",
+      "position": 1,
+      "button": "Correos",
+      "type": "donut",
+      "configElements": {
+        "data": [
+          { "value": 484, "name": "Union Ads", "color": "#FF69B4" },
+          { "value": 580, "name": "Email", "color": "#2FE5A7" }
+        ]
+      }
+    },
+    {
+      "title": "Mensajes exitosos",
+      "position": 2,
+      "button": "Correos",
+      "type": "donut",
+      "configElements": {
+        "data": [
+          { "value": 484, "name": "Union Ads", "color": "#FF69B4" },
+          { "value": 580, "name": "Email", "color": "#2FE5A7" }
+        ]
+      }
+    }
+  ]
+}
