@@ -1,17 +1,39 @@
+import { FaFolder, FaPhone, FaPhoneAlt, FaWindowMaximize, FaWindows } from "react-icons/fa";
 import CardNotification from "../components/CardNotification";
 import ContainerGraphics from "../components/Graphics/ContainerGraphics";
 import Layout from "../components/Layout";
 import dataGraphics from "../data/graphics.json";
+import { FaPeopleGroup } from "react-icons/fa6";
 
 const Home = () => {
   return (
     <Layout title={"Home"}>
       <section className="flex flex-col w-full h-full gap-8">
-        <div className="flex justify-between">
-          <CardNotification />
-          <CardNotification />
-          <CardNotification />
-          <CardNotification />
+        <div className="flex justify-between gap-16">
+          <CardNotification
+            icon={FaFolder}
+            quantity={5}
+            color="#6B46C1"
+            content="E-MAILS"
+          />
+          <CardNotification
+            icon={FaPhoneAlt}
+            quantity={2}
+            color="#2FE5A7"
+            content="TELEFONOS"
+          />
+          <CardNotification
+            icon={FaPeopleGroup}
+            quantity={6}
+            color="#FF69B4"
+            content="GRUPOS"
+          />
+          <CardNotification
+            icon={FaWindowMaximize}
+            quantity={34}
+            color="#6254FF"
+            content="PLANTILLAS"
+          />
         </div>
 
         <div className="flex h-80 gap-4 overflow-hidden">
@@ -20,8 +42,15 @@ const Home = () => {
           </div>
 
           <div className="w-5/12 h-full min-h-full">
-            <ContainerGraphics configGraphics={dataGraphics.secondHomeGraphic} />
+            <ContainerGraphics
+              configGraphics={dataGraphics.secondHomeGraphic}
+            />
           </div>
+
+
+        </div>
+
+        <div>
         </div>
       </section>
     </Layout>

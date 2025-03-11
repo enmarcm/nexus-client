@@ -1,3 +1,5 @@
+/* Animaciones existentes de éxito */
+
 @keyframes wipe-out-left {
   from {
     clip-path: inset(0 0 0 0);
@@ -10,7 +12,7 @@
 }
 
 .transition-style-out-wipe-left {
-  animation: 2.5s cubic-bezier(.25, 1, .30, 1) wipe-out-left both;
+  animation: 2.5s cubic-bezier(0.25, 1, 0.30, 1) wipe-out-left both;
 }
 
 @keyframes wipe-out-top-right {
@@ -20,12 +22,12 @@
   }
   to {
     clip-path: polygon(50% -50%, 150% 50%, 150% 50%, 50% -50%);
-    background-color: #3A36DB; 
+    background-color: #3A36DB;
   }
 }
 
 .transition-style-out-top-wipe {
-  animation: 2.5s cubic-bezier(.25, 1, .30, 1) wipe-out-top-right both;
+  animation: 2.5s cubic-bezier(0.25, 1, 0.30, 1) wipe-out-top-right both;
 }
 
 @keyframes square-out-hesitate {
@@ -35,16 +37,16 @@
   }
   40% {
     clip-path: inset(33% 33% 33% 33%);
-    background-color: yellow; /* Cambia el color aquí */
+    background-color: yellow;
   }
   100% {
     clip-path: inset(100% 100% 100% 100%);
-    background-color: green; /* Cambia el color aquí */
+    background-color: green;
   }
 }
 
 .transition-square-out-hesitate {
-  animation: 2.5s cubic-bezier(.25, 1, .30, 1) square-out-hesitate both;
+  animation: 2.5s cubic-bezier(0.25, 1, 0.30, 1) square-out-hesitate both;
 }
 
 @keyframes success-shrink {
@@ -64,4 +66,83 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Animación de shake para datos faltantes */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-10px); }
+  80% { transform: translateX(10px); }
+  100% { transform: translateX(0); }
+}
+
+.animate-shake {
+  animation: shake 0.5s;
+}
+
+/* NUEVAS ANIMACIONES PARA ERROR */
+
+/* El contenedor hace un zoom in y luego regresa a su tamaño original */
+@keyframes error-container {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.transition-error-container {
+  animation: error-container 1.5s cubic-bezier(0.25, 1, 0.30, 1) forwards;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* La X aparece de forma fluida desde abajo con un suave "pop" y un bounce final */
+@keyframes error-icon-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.2) rotate(5deg);
+  }
+  70% {
+    transform: translateY(0px) scale(0.95) rotate(-3deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+.transition-error-icon {
+  animation: error-icon-slide-up 1s cubic-bezier(0.25, 1, 0.30, 1) forwards;
+}
+
+/* El texto aparece gradualmente justo después de la X con un suave bounce */
+@keyframes error-text-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.transition-error-text {
+  animation: error-text-fade-in 0.6s cubic-bezier(0.25, 1, 0.30, 1) forwards;
+  animation-delay: 1s;
 }

@@ -4,30 +4,33 @@ import Login from "./views/Login";
 import Home from "./views/Home";
 import Sidebar from "./components/Sidebar";
 import NotFound from "./views/NotFound";
-import { menuItems, RoutesToIgnoreMenu } from "./data/constants";
+import { menuItems, RoutesToIgnoreMenu, Routes as AppRoutes } from "./data/constants";
 
 const App = () => {
-  const sessionData = useSession();
+  const { sessionData } = useSession();
   const location = useLocation();
 
-  // if (!sessionData.user.name || !sessionData.user.email || !sessionData.token) {
+  if (!sessionData.user.name || !sessionData.user.email || !sessionData.token) {
+    
+    
+    if (location.pathname !== `/${AppRoutes.Login}`) {
+      return <Navigate to={`/${AppRoutes.Login}`} />;
+    }
+  }
 
-  //   if (location.pathname !== "/login") {
-  //     return <Navigate to="login" />;
-  //   }
-  // }
+  const pathWithoutSlash = location.pathname.replace("/", "");
 
   return (
-    <div className="flex ">
-      {!RoutesToIgnoreMenu.includes(location.pathname as any) && (
+    <div className="flex max-w-full overflow-x-hidden">
+      {!RoutesToIgnoreMenu.includes(pathWithoutSlash as AppRoutes) && (
         <Sidebar menus={menuItems} />
       )}
 
-      <div className="h-screen flex-1 ">
+      <div className="h-screen flex-1">
         <Routes>
-          <Route path={"login"} element={<Login />} />
-          <Route path={"home"} element={<Home />} />
-          <Route path={"*"} element={<NotFound />} />
+          <Route path={AppRoutes.Login} element={<Login />} />
+          <Route path={AppRoutes.Home} element={<Home />} />
+          <Route path={AppRoutes.NotFound} element={<NotFound />} />
         </Routes>
       </div>
     </div>

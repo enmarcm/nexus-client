@@ -16,6 +16,7 @@
     "antd": "^5.24.3",
     "clsx": "^2.1.1",
     "echarts": "^5.6.0",
+    "jwt-decode": "^4.0.0",
     "lightweight-charts": "3.8.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

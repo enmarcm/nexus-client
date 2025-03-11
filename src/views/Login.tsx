@@ -1,50 +1,72 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
+
 import "./css/Login.css";
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaTimes } from "react-icons/fa";
+import useSession from "../customHooks/useSession";
+import useFetcho from "../customHooks/useFetcho";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { createSession, sessionData,  checkTokenAndSetSession} = useSession();
   const [isAnimating, setIsAnimating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [showErrorText, setShowErrorText] = useState(false);
+  const [isMissingData, setIsMissingData] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState("");
+
+  
+  useEffect(() => {
+    const data = checkTokenAndSetSession() as any;
+
+    console.log("Session data:", sessionData);
+    
+    if (data?.user.name && data?.user.email && data?.token) {
+        navigate("/home");
+    }
+  }, []);
+
+  const fetchWithLoading = useFetcho();
 
   const handleLogin = async () => {
-    try {
-      const response = await fetch("http://localhost:3030/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+    if (!email || !password) {
+      setIsMissingData(true);
+      setTimeout(() => setIsMissingData(false), 500);
+      return;
+    }
+
+    const data = (await fetchWithLoading({
+      url: "http://localhost:3030/login",
+      method: "POST",
+      body: { email, password },
+      isCors: true,
+    })) as any;
+
+    if (data && data.token) {
+      createSession(data.token, {
+        name: data.name,
+        email: data.email,
+        profile: data.profile,
+        id: data.id,
       });
-
-      const data = await response.json();
-      console.log(data);
-
-      if (data.token) {
-        setToken(data.token);
-
-        localStorage.setItem("token", data.token);
-
-        setIsSuccess(true);
-
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsAnimating(true);
         setTimeout(() => {
-          setIsAnimating(true);
-          setTimeout(() => {
-            navigate("/home");
-          }, 1500);
-        }, 300);
-      } else {
-        alert("Login failed");
-      }
-    } catch (error) {
-      console.error("Error logging in:", error);
-      alert("An error occurred. Please try again.");
+          navigate("/home");
+        }, 1500);
+      }, 300);
+    } else {
+      setIsError(true);
+      setTimeout(() => setShowErrorText(true), 600);
+      setTimeout(() => {
+        setIsError(false);
+        setShowErrorText(false);
+      }, 1500);
     }
   };
 
@@ -55,13 +77,26 @@ const Login = () => {
       }`}
     >
       <div
-        className={`grid grid-cols-1 md:grid-cols-30-60 bg-white p-6 md:p-20 rounded-xl shadow-sm gap-6 md:min-h-96 justify-center w-full md:w-2/3 m-4 md:m-0 ${
-          isSuccess ? "transition-success" : ""
-        }`}
+        className={`relative grid grid-cols-1 md:grid-cols-30-60 bg-white p-6 md:p-20 rounded-xl shadow-sm gap-6 md:min-h-96 justify-center w-full md:w-2/3 m-4 md:m-0 ${
+          isSuccess
+            ? "transition-success"
+            : isError
+            ? "transition-error-container"
+            : ""
+        } ${isMissingData ? "animate-shake" : ""}`}
       >
         {isSuccess ? (
           <div className="flex justify-center items-center w-full h-full">
             <FaCheck className="text-green-500 text-6xl" />
+          </div>
+        ) : isError ? (
+          <div className="flex flex-col justify-center items-center w-full h-full">
+            <FaTimes className="text-red-500 text-6xl transition-error-icon" />
+            {showErrorText && (
+              <p className="text-red-500 mt-4 transition-error-text">
+                Error: Credenciales incorrectas
+              </p>
+            )}
           </div>
         ) : (
           <>
