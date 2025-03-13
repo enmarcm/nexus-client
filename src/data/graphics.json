@@ -55,8 +55,8 @@
       "type": "donut",
       "configElements": {
         "data": [
-          { "value": 484, "name": "Union Ads", "color": "#FF69B4" },
-          { "value": 580, "name": "Email", "color": "#2FE5A7" }
+          { "value": 580, "name": "Email", "color": "#2FE5A7" },
+          { "value": 484, "name": "SMS", "color": "#FF69B4" }
         ]
       }
     },
@@ -67,8 +67,8 @@
       "type": "donut",
       "configElements": {
         "data": [
-          { "value": 484, "name": "Union Ads", "color": "#FF69B4" },
-          { "value": 580, "name": "Email", "color": "#2FE5A7" }
+          { "value": 580, "name": "Email", "color": "#2FE5A7" },
+          { "value": 484, "name": "SMS", "color": "#FF69B4" }
         ]
       }
     }

@@ -10,5 +10,6 @@ export const menuItems = [
   {
     title: "Dashboard",
     src: Routes.Home,
+    path: `/${Routes.Home}`,
   },
 ];

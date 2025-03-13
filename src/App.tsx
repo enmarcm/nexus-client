@@ -11,8 +11,6 @@ const App = () => {
   const location = useLocation();
 
   if (!sessionData.user.name || !sessionData.user.email || !sessionData.token) {
-    
-    
     if (location.pathname !== `/${AppRoutes.Login}`) {
       return <Navigate to={`/${AppRoutes.Login}`} />;
     }
@@ -23,10 +21,12 @@ const App = () => {
   return (
     <div className="flex max-w-full overflow-x-hidden">
       {!RoutesToIgnoreMenu.includes(pathWithoutSlash as AppRoutes) && (
-        <Sidebar menus={menuItems} />
+        <div className="sticky top-0 h-screen">
+          <Sidebar menus={menuItems} />
+        </div>
       )}
 
-      <div className="h-screen flex-1">
+      <div className="h-screen flex-1 overflow-x-hidden">
         <Routes>
           <Route path={AppRoutes.Login} element={<Login />} />
           <Route path={AppRoutes.Home} element={<Home />} />

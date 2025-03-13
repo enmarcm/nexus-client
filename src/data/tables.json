@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Correos despachados",
+    "button": "Correos",
+    "columns": [
+      "ID",
+      "CORREO ORIGEN",
+      "CORREO DESTINO",
+      "ASUNTO",
+      "FECHA Y HORA"
+    ],
+    "data": [
+      {
+        "ID": 1,
+        "CORREO ORIGEN": "theenmanuel123@gmail.com",
+        "CORREO DESTINO": "milgeue@gmail.com",
+        "ASUNTO": "Hola",
+        "FECHA Y HORA": "2018-10-11 12:00:00"
+      },
+      {
+        "ID": 2,
+        "CORREO ORIGEN": "parale@gmail.com",
+        "CORREO DESTINO": "mig@hotmail.es",
+        "ASUNTO": "Dependiendo",
+        "FECHA Y HORA": "2012-10-11 12:00:00"
+      }
+    ]
+  },
+  {
+    "title": "Mensajes despachados",
+    "button": "Mensajes",
+    "columns": ["ID", "TELEFONO ORIGEN", "TELEFONO DESTINO", "FECHA Y HORA"],
+    "data": [
+      {
+        "ID": 1,
+        "TELEFONO ORIGEN": "0414-1234567",
+        "TELEFONO DESTINO": "0414-7654321",
+        "FECHA Y HORA": "2023-10-11 12:00:00"
+      }
+    ]
+  }
+]

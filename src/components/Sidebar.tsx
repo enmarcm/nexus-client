@@ -2,13 +2,15 @@ import { useState } from "react";
 import { IconType } from "react-icons";
 import { getIcon } from "../utils/getIcons";
 import { FaSignOutAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useSession from "../customHooks/useSession";
+
 interface MenuItem {
   title: string;
   src?: string;
   icon?: IconType;
   gap?: boolean;
+  path: string;
 }
 
 interface SidebarProps {
@@ -18,6 +20,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ menus }) => {
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const { destroySession, sessionData } = useSession();
 
   const handleLogout = () => {
@@ -55,18 +58,20 @@ const Sidebar: React.FC<SidebarProps> = ({ menus }) => {
         <ul className="pt-6 flex-grow">
           {menus.map((menu, index) => {
             const Icon = menu.icon || getIcon(menu.title);
+            const isActive = location.pathname === menu.path; 
             return (
               <li
                 key={index}
-                className={`flex rounded-md p-2 cursor-pointer hover:bg-light-white text-gray-600 text-sm items-center gap-x-4 transition-colors duration-200 ease-in-out ${
+                className={`flex rounded-md p-2 cursor-pointer hover:bg-light-white text-sm items-center gap-x-4 transition-colors duration-200 ease-in-out ${
                   menu.gap ? "mt-9" : "mt-2"
                 } ${index === 0 && "bg-light-white"}`}
+                onClick={() => navigate(menu.path)}
               >
-                <Icon className="text-lg flex-shrink-0" />
+                <Icon className={`text-lg flex-shrink-0 ${isActive ? "text-primaryLila" : "text-gray-600"}`} />
                 <span
                   className={`origin-left transition-opacity duration-200 ease-in-out ${
                     !open ? "opacity-0 w-0" : "opacity-100 w-auto"
-                  }`}
+                  } ${isActive ? "text-primaryLila font-semibold" : "text-gray-600"}`}
                 >
                   {menu.title}
                 </span>

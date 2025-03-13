@@ -80,13 +80,13 @@ const ContainerGraphics: React.FC<ContainerGraphicsProps> = ({
           )}
         </div>
 
-        <div className="flex justify-end gap-4 mb-4 w-1/3">
+        <div className="flex justify-end mb-4 w-1/3">
           {configGraphics.map((config, index) => (
             <button
               key={index}
               className={`px-4 py-2 cursor-pointer w-32 text-sm ${
                 selectedTab === index ? "bg-primaryLila text-white" : "bg-gray-200 text-gray-700"
-              } rounded transition duration-300 ease-in-out transform hover:scale-105 font-semibold`}
+              } rounded-none first:rounded-l last:rounded-r transition duration-300 ease-in-out transform hover:scale-105 font-semibold`}
               onClick={() => handleTabClick(index)}
             >
               {config.button}
