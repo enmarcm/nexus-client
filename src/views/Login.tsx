@@ -10,7 +10,7 @@ import useFetcho from "../customHooks/useFetcho";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { createSession, sessionData,  checkTokenAndSetSession} = useSession();
+  const { createSession, sessionData, checkTokenAndSetSession} = useSession();
   const [isAnimating, setIsAnimating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
