@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router";
 import useSession from "./customHooks/useSession";
 import Login from "./views/Login";
 import Home from "./views/Home";
+import Emails from "./views/Email";
 import Sidebar from "./components/Sidebar";
 import NotFound from "./views/NotFound";
 import { menuItems, RoutesToIgnoreMenu, Routes as AppRoutes } from "./data/constants";
@@ -31,6 +32,7 @@ const App = () => {
           <Route path={AppRoutes.Login} element={<Login />} />
           <Route path={AppRoutes.Home} element={<Home />} />
           <Route path={AppRoutes.NotFound} element={<NotFound />} />
+          <Route path={AppRoutes.Email} element={<Emails />} />
         </Routes>
       </div>
     </div>
