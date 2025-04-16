@@ -7,6 +7,7 @@ import "./css/Login.css";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import useSession from "../customHooks/useSession";
 import useFetcho from "../customHooks/useFetcho";
+import { API_URL } from "../data/constants";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ const Login = () => {
     }
 
     const data = (await fetchWithLoading({
-      url: "http://localhost:3030/login",
+      url: `${API_URL}/auth/login`,
       method: "POST",
       body: { email, password },
       isCors: true,
