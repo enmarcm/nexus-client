@@ -1,0 +1,41 @@
+/* Animación de apertura */
+@keyframes circle-in-center {
+    from {
+      clip-path: circle(0%);
+    }
+    to {
+      clip-path: circle(125%);
+    }
+  }
+  
+  .modal-open-animation {
+    animation: 0.7s cubic-bezier(0.22, 1, 0.36, 1) circle-in-center both;
+  }
+  
+  /* Animación de cierre */
+  @keyframes circle-out-center {
+    from {
+      clip-path: circle(125%);
+    }
+    to {
+      clip-path: circle(0%);
+    }
+  }
+  
+  .modal-close-animation {
+    animation: 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) circle-out-center both;
+  }
+  
+  /* Transición para las cards */
+  @keyframes card-select {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.05);
+    }
+  }
+  
+  .card-selected {
+    animation: 0.4s ease-in-out card-select both;
+  }

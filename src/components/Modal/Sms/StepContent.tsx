@@ -3,9 +3,9 @@ import { FaFileExcel, FaFileAlt } from "react-icons/fa";
 
 interface StepContentProps {
   step: string;
-  emails: string[];
-  onEmailChange: (emails: string[]) => void; // Cambiado para aceptar un array de correos
-  validateEmail: (email: string) => boolean;
+  phoneNumbers: string[];
+  onPhoneNumberChange: (phoneNumbers: string[]) => void;
+  validatePhoneNumber: (phone: string) => boolean;
   dragging: boolean;
   uploadedFile: File | null;
   onFileDrop: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -22,9 +22,9 @@ interface StepContentProps {
 
 const StepContent: React.FC<StepContentProps> = ({
   step,
-  emails,
-  onEmailChange,
-  validateEmail,
+  phoneNumbers,
+  onPhoneNumberChange,
+  validatePhoneNumber,
   dragging,
   uploadedFile,
   onFileDrop,
@@ -38,21 +38,21 @@ const StepContent: React.FC<StepContentProps> = ({
   onConfirm,
   confirmDisabled = false,
 }) => {
-  const handleEmailChange = (index: number, value: string) => {
-    const updatedEmails = [...emails];
-    updatedEmails[index] = value;
+  const handlePhoneNumberChange = (index: number, value: string) => {
+    const updatedPhoneNumbers = [...phoneNumbers];
+    updatedPhoneNumbers[index] = value;
 
-    onEmailChange(updatedEmails); // Actualiza la lista completa de correos
+    onPhoneNumberChange(updatedPhoneNumbers);
 
     // Si el usuario escribe en el último campo, agrega un nuevo campo vacío
-    if (index === emails.length - 1 && value.trim() !== "") {
-      onEmailChange([...updatedEmails, ""]); // Agrega un nuevo campo vacío
+    if (index === phoneNumbers.length - 1 && value.trim() !== "") {
+      onPhoneNumberChange([...updatedPhoneNumbers, ""]);
     }
   };
 
-  const handleRemoveEmail = (index: number) => {
-    const updatedEmails = emails.filter((_, i) => i !== index);
-    onEmailChange(updatedEmails); // Actualiza la lista de correos
+  const handleRemovePhoneNumber = (index: number) => {
+    const updatedPhoneNumbers = phoneNumbers.filter((_, i) => i !== index);
+    onPhoneNumberChange(updatedPhoneNumbers);
   };
 
   return (
@@ -62,24 +62,28 @@ const StepContent: React.FC<StepContentProps> = ({
           <>
             <h2 className="text-xl font-semibold mb-4">Ingresar manualmente</h2>
             <p className="text-gray-600 mb-4">
-              Ingresa los correos electrónicos de los destinatarios:
+              Ingresa los números de teléfono de los destinatarios:
             </p>
-            <div className="h-64 overflow-y-auto pr-2"> {/* Contenedor con scroll vertical */}
-              {emails.map((email, index) => (
+            <div className="h-64 overflow-y-auto pr-2">
+              {phoneNumbers.map((phone, index) => (
                 <div key={index} className="flex items-center gap-2 mb-4">
                   <input
-                    type="email"
-                    value={email}
-                    placeholder="Correo electrónico"
+                    type="text"
+                    value={phone}
+                    placeholder="Número de teléfono"
                     className={`w-full p-2 border ${
-                      email && !validateEmail(email) ? "border-red-500" : "border-gray-300"
+                      phone && !validatePhoneNumber(phone)
+                        ? "border-red-500"
+                        : "border-gray-300"
                     } rounded`}
-                    onChange={(e) => handleEmailChange(index, e.target.value)}
+                    onChange={(e) =>
+                      handlePhoneNumberChange(index, e.target.value)
+                    }
                   />
-                  {emails.length > 1 && (
+                  {phoneNumbers.length > 1 && (
                     <button
                       className="text-red-500 hover:text-red-700"
-                      onClick={() => handleRemoveEmail(index)}
+                      onClick={() => handleRemovePhoneNumber(index)}
                     >
                       Eliminar
                     </button>
@@ -103,7 +107,8 @@ const StepContent: React.FC<StepContentProps> = ({
             >
               <h2 className="text-xl font-semibold mb-4">Cargar Archivo</h2>
               <p className="text-gray-600 mb-4">
-                Arrastra y suelta un archivo JSON o Excel aquí, o haz clic para seleccionarlo.
+                Arrastra y suelta un archivo JSON o Excel aquí, o haz clic para
+                seleccionarlo.
               </p>
               <input
                 type="file"
@@ -135,7 +140,9 @@ const StepContent: React.FC<StepContentProps> = ({
         {step === "grupo" && (
           <>
             <h2 className="text-xl font-semibold mb-4">Seleccionar Grupo</h2>
-            <p className="text-gray-600 mb-4">Busca y selecciona un grupo de destinatarios:</p>
+            <p className="text-gray-600 mb-4">
+              Busca y selecciona un grupo de destinatarios:
+            </p>
             <input
               type="text"
               placeholder="Buscar grupo"
@@ -160,7 +167,6 @@ const StepContent: React.FC<StepContentProps> = ({
         )}
       </div>
 
-      {/* Botones "Atrás" y "Confirmar" */}
       <div className="flex justify-between mt-4">
         <button
           className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
@@ -170,7 +176,9 @@ const StepContent: React.FC<StepContentProps> = ({
         </button>
         <button
           className={`px-4 py-2 rounded text-white ${
-            confirmDisabled ? "bg-gray-300 cursor-not-allowed" : "bg-purple-500 hover:bg-purple-600"
+            confirmDisabled
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-purple-500 hover:bg-purple-600"
           }`}
           onClick={onConfirm}
           disabled={confirmDisabled}

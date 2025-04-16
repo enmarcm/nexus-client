@@ -6,6 +6,9 @@ import Sidebar from "./components/Sidebar";
 import NotFound from "./views/NotFound";
 import { menuItems, RoutesToIgnoreMenu, Routes as AppRoutes } from "./data/constants";
 import Mail from "./views/Mail";
+import NewEmail from "./views/NewEmail";
+import SMS from "./views/SMS";
+import NewSms from "./views/NewSms";
 
 const App = () => {
   const { sessionData } = useSession();
@@ -33,6 +36,9 @@ const App = () => {
           <Route path={AppRoutes.Home} element={<Home />} />
           <Route path={AppRoutes.NotFound} element={<NotFound />} />
           <Route path={AppRoutes.Emails} element={<Mail/>}/>
+          <Route path={AppRoutes.NewEmail} element={<NewEmail/>}/>
+          <Route path={AppRoutes.SMS} element={<SMS/>}/>
+          <Route path={AppRoutes.SMSNew} element={<NewSms/>}/>
         </Routes>
       </div>
     </div>

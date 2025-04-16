@@ -3,25 +3,25 @@ import { useEffect, useState } from "react";
 import Table from "../components/Table"; // Asegúrate de que la ruta sea correcta
 import useFetcho from "../customHooks/useFetcho";
 import { API_URL } from "../data/constants";
-import { filterDataEmails, getStatusColor } from "../utils/extraFunctions";
+import { filterDataSms, getStatusColor } from "../utils/extraFunctions"; // Cambiado para SMS
 import { FaPlus } from "react-icons/fa"; // Importamos el ícono de "más"
-import ModalMail from "../components/ModalMail";
+import ModalSms from "../components/ModalSms"; // Cambiado para SMS
 
-const Mail = () => {
+const Sms = () => {
   const [status, setStatus] = useState("fallidos");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
   const [isClicked, setIsClicked] = useState(false); // Estado para manejar el efecto de clic
 
-  const COLUMNS_TABLE = ["id", "origen", "destino", "asunto", "fecha", "hora"];
+  const COLUMNS_TABLE = ["id", "origen", "destino", "mensaje", "fecha", "hora"]; // Cambiado para SMS
 
   const REQUEST_BODY = {
     url: `${API_URL}/toProcess`,
     method: "POST",
     body: {
-      object: "email",
-      method: "getmails",
+      object: "sms", // Cambiado para SMS
+      method: "getmessages", // Cambiado para SMS
     },
   };
 
@@ -31,7 +31,7 @@ const Mail = () => {
       const fetchWithLoading = useFetcho();
       const params = REQUEST_BODY;
       const response = (await fetchWithLoading(params)) as any;
-      const filteredData = filterDataEmails(response, status) as any;
+      const filteredData = filterDataSms(response, status) as any; // Cambiado para SMS
       setData(filteredData);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -54,7 +54,7 @@ const Mail = () => {
   };
 
   return (
-    <Layout title="Correos Electronicos">
+    <Layout title="Mensajes de Texto">
       <section>
         {/* Parte de filtrar */}
         <div className="flex gap-16 items-center w-full mb-8">
@@ -100,13 +100,13 @@ const Mail = () => {
         onClick={handleButtonClick} // Maneja el clic
       >
         <FaPlus />
-        Nuevo Correo
+        Nuevo Mensaje
       </button>
 
       {/* Modal */}
-      {isModalOpen && <ModalMail onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && <ModalSms onClose={() => setIsModalOpen(false)} />} {/* Cambiado para SMS */}
     </Layout>
   );
 };
 
-export default Mail;
+export default Sms;

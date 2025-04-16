@@ -1,10 +1,43 @@
 import { IconType } from "react-icons";
 import {
-  FaChartBar, FaInbox, FaUser, FaCalendarAlt, FaSearch, FaChartLine, FaFolder, FaCog,
-  FaHome, FaBell, FaEnvelope, FaHeart, FaStar, FaThumbsUp, FaComment, FaShare,
-  FaLock, FaUnlock, FaKey, FaTrash, FaEdit, FaSave, FaDownload, FaUpload,
-  FaPrint, FaCamera, FaVideo, FaMusic, FaMicrophone, FaHeadphones, FaGlobe,
-  FaMap, FaLocationArrow, FaPhone, FaMobile, FaTablet, FaLaptop, FaDesktop
+  FaChartBar,
+  FaInbox,
+  FaUser,
+  FaCalendarAlt,
+  FaSearch,
+  FaChartLine,
+  FaFolder,
+  FaCog,
+  FaHome,
+  FaBell,
+  FaEnvelope,
+  FaHeart,
+  FaStar,
+  FaThumbsUp,
+  FaComment,
+  FaShare,
+  FaLock,
+  FaUnlock,
+  FaKey,
+  FaTrash,
+  FaEdit,
+  FaSave,
+  FaDownload,
+  FaUpload,
+  FaPrint,
+  FaCamera,
+  FaVideo,
+  FaMusic,
+  FaMicrophone,
+  FaHeadphones,
+  FaGlobe,
+  FaMap,
+  FaLocationArrow,
+  FaPhone,
+  FaMobile,
+  FaTablet,
+  FaLaptop,
+  FaDesktop,
 } from "react-icons/fa";
 
 export const icons: { [key: string]: IconType } = {
@@ -46,8 +79,9 @@ export const icons: { [key: string]: IconType } = {
   tablet: FaTablet,
   laptop: FaLaptop,
   desktop: FaDesktop,
+  mensajes: FaEnvelope,
 };
 
 export const getIcon = (title: string): IconType => {
-  return icons[title.toLowerCase()] || FaFolder; 
+  return icons[title.toLowerCase()] || FaFolder;
 };
