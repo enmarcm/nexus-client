@@ -7,15 +7,17 @@ interface CardNotificationProps {
   color: string;
   quantity: number;
   content: string;
+  handleClick: () => void;
 }
 
-const CardNotification: React.FC<CardNotificationProps> = ({ icon: Icon, color, quantity, content }) => {
+const CardNotification: React.FC<CardNotificationProps> = ({ icon: Icon, color, quantity, content, handleClick }) => {
   const get40PercentColor = (color: string) => `${color}66`;
 
   return (
     <div
       className="hover:cursor-pointer card-notification bg-white w-full h-28 gap-2 rounded-xl shadow-sm flex p-4 relative"
       style={{ "--icon-color": color } as React.CSSProperties}
+      onClick={handleClick}
     >
       <div className="card-notification-bg"></div>
 

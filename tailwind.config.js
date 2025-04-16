@@ -12,6 +12,7 @@ export default {
         backgroundWhite: "#F1F4FA",
         primaryLila: "#3A36DB",
         transparentLila: "#3a36db66",
+        primaryPink: "#FF69B4"
       },
       fontFamily: {
         DM: ["DM Sans", "sans-serif"],

@@ -19,13 +19,17 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ menus }) => {
   const [open, setOpen] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { destroySession, sessionData } = useSession();
 
   const handleLogout = () => {
-    destroySession();
-    navigate("/");
+    setIsLoggingOut(true);
+    setTimeout(()=> {
+      destroySession();
+      navigate("/");
+    }, 500);
   };
 
   return (
@@ -107,7 +111,9 @@ const Sidebar: React.FC<SidebarProps> = ({ menus }) => {
                 </div>
 
                 <div
-                  className="flex items-center gap-2 cursor-pointer text-red-500 hover:scale-150 transition-all hover:opacity-65"
+                  className={`flex items-center gap-2 cursor-pointer text-red-500 transition-all ${
+                    isLoggingOut ? "opacity-0 duration-1000" : "hover:scale-150 hover:opacity-65"
+                  }`}
                   onClick={handleLogout}
                 >
                   <FaSignOutAlt className="text-lg" />

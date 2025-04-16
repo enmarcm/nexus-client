@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router";
 import useSession from "./customHooks/useSession";
 import Login from "./views/Login";
 import Home from "./views/Home";
+import Emails from "./views/Email";
 import Sidebar from "./components/Sidebar";
 import NotFound from "./views/NotFound";
 import { menuItems, RoutesToIgnoreMenu, Routes as AppRoutes } from "./data/constants";
