@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import Table from "../components/Table"; // Asegúrate de que la ruta sea correcta
 import useFetcho from "../customHooks/useFetcho";
 import { API_URL } from "../data/constants";
-import { filterDataSms, getStatusColor } from "../utils/extraFunctions"; // Cambiado para SMS
+import { filterDataSms } from "../utils/extraFunctions"; // Cambiado para SMS
 import { FaPlus } from "react-icons/fa"; // Importamos el ícono de "más"
-import ModalSms from "../components/ModalSms"; // Cambiado para SMS
+import ModalSms from "../components/Modal/Sms/ModalSms";
+import StatusSelector from "../components/StatusSelector";
 
 const Sms = () => {
   const [status, setStatus] = useState("fallidos");
@@ -59,23 +60,7 @@ const Sms = () => {
         {/* Parte de filtrar */}
         <div className="flex gap-16 items-center w-full mb-8">
           <h2 className="font-semibold text-xl">FILTRAR POR</h2>
-          <select
-            className={`p-2 rounded w-48 bg-white text-gray-700 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-white transition-all duration-300 ease-in-out ${getStatusColor(
-              status
-            )}`}
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="fallidos" className="text-black bg-white">
-              Fallidos
-            </option>
-            <option value="en proceso" className="text-black bg-white">
-              En Proceso
-            </option>
-            <option value="exitosos" className="text-black bg-white">
-              Exitosos
-            </option>
-          </select>
+          <StatusSelector status={status} setStatus={setStatus}/>
         </div>
 
         {/* Tabla */}

@@ -1,9 +1,14 @@
 import React, { useState } from "react";
-import { FaSortUp, FaSortDown } from "react-icons/fa";
+import { FaSortUp, FaSortDown, FaEdit, FaTrash } from "react-icons/fa";
 
 interface TableProps {
   columns: string[];
   data: { [key: string]: any }[];
+  editable?: boolean; // Prop para habilitar edición
+  erasable?: boolean; // Prop para habilitar eliminación
+  onEdit?: (row: { [key: string]: any }) => void; // Callback para editar
+  onErase?: any
+  modalComponent?: React.ReactNode; // Componente modal completo
 }
 
 interface SortConfig {
@@ -11,8 +16,19 @@ interface SortConfig {
   direction: string;
 }
 
-const Table: React.FC<TableProps> = ({ columns, data }) => {
+const Table: React.FC<TableProps> = ({
+  columns,
+  data,
+  editable = false,
+  erasable = false,
+  onEdit,
+  onErase,
+  modalComponent,
+}) => {
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
+  const [selectedRow, setSelectedRow] = useState<{ [key: string]: any } | null>(
+    null
+  );
 
   const sortedData = React.useMemo(() => {
     if (sortConfig !== null) {
@@ -31,7 +47,11 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
 
   const requestSort = (key: string) => {
     let direction = "ascending";
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === "ascending") {
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === "ascending"
+    ) {
       direction = "descending";
     }
     setSortConfig({ key, direction });
@@ -42,6 +62,16 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
       return;
     }
     return sortConfig.key === key ? sortConfig.direction : undefined;
+  };
+
+  const handleEdit = (row: { [key: string]: any }) => {
+    setSelectedRow(row);
+    if (onEdit) onEdit(row);
+  };
+
+  const handleErase = async (row: { [key: string]: any }) => {
+    setSelectedRow(row);
+    if (onErase) await onErase(row);
   };
 
   return (
@@ -64,6 +94,11 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
                 </div>
               </th>
             ))}
+            {(editable || erasable) && (
+              <th className="py-4 px-6 bg-white text-gray-500 font-bold uppercase text-sm text-left">
+                Acciones
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -80,10 +115,35 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
                   {row[column]}
                 </td>
               ))}
+              {(editable || erasable) && (
+                <td className="py-4 px-6 border-b border-gray-200 text-gray-600 text-left">
+                  <div className="flex gap-2">
+                    {editable && (
+                      <button
+                        className="text-blue-500 hover:text-blue-700"
+                        onClick={() => handleEdit(row)}
+                      >
+                        <FaEdit />
+                      </button>
+                    )}
+                    {erasable && (
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => handleErase(row)}
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Renderiza el componente modal completo si se pasa */}
+      {modalComponent && selectedRow && modalComponent}
     </div>
   );
 };

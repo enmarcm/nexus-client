@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Para redirigir
-import { FaSms, FaTimes } from "react-icons/fa"; // Cambiado a ícono de SMS
-import CardOptions from "./Modal/CardOptions";
-import StepContent from "./Modal/Sms/StepContent"; // Cambiado para SMS
-import "./css/ModalSms.css"; // Cambiado para SMS
-import { useSmsDataGlobal } from "../context/SmsDataGlobal";
+import { FaEnvelope, FaTimes } from "react-icons/fa";
+import { useEmailDataGlobal } from "../../../context/EmailDataGlobal";
+import CardOptions from "../CardOptions"; 
+import StepContent from "./StepContent";
+import "../../css/ModalMail.css";
 
-const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const { dispatch } = useSmsDataGlobal(); // Usar el contexto global para SMS
+const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const { dispatch } = useEmailDataGlobal(); // Usar el contexto global
   const navigate = useNavigate(); // Hook para redirigir
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [isClosing, setIsClosing] = useState(false); // Estado para manejar la animación de cierre
-  const [phoneNumbers, setPhoneNumbers] = useState<string[]>([""]); // Cambiado a números de teléfono
+  const [emails, setEmails] = useState<string[]>([""]);
   const [dragging, setDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,7 +43,7 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const handleConfirm = () => {
     if (step === 2 && selectedCard === "manual") {
-      console.log("Números confirmados:", phoneNumbers);
+      console.log("Correos confirmados:", emails);
     } else if (step === 2 && selectedCard === "archivo") {
       console.log("Archivo confirmado:", uploadedFile);
     } else if (step === 2 && selectedCard === "grupo") {
@@ -52,12 +52,12 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
     // Guardar los datos en el contexto global
     dispatch({ type: "SET_SELECTED_CARD", payload: selectedCard });
-    dispatch({ type: "SET_PHONE_NUMBERS", payload: phoneNumbers });
+    dispatch({ type: "SET_EMAILS", payload: emails });
     dispatch({ type: "SET_UPLOADED_FILE", payload: uploadedFile });
     dispatch({ type: "SET_SELECTED_GROUP", payload: selectedGroup });
 
-    // Redirigir a /sms/newSms
-    navigate("/sms/newSms");
+    // Redirigir a /emails/newEmail
+    navigate("/emails/newEmail");
   };
 
   return (
@@ -82,7 +82,7 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <>
             <div className="flex gap-4 items-center justify-start border-b-2 border-gray-300 pb-4">
               <div>
-                <FaSms size={30} className="text-purple-500" />
+                <FaEnvelope size={30} className="text-purple-500" />
               </div>
               <div className="flex flex-col justify-center items-start gap-2">
                 <h2 className="text-xl font-semibold">
@@ -116,13 +116,13 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </>
         ) : (
-            <StepContent
+          <StepContent
             step={selectedCard!}
-            phoneNumbers={phoneNumbers} // Cambiado a phoneNumbers
-            onPhoneNumberChange={(updatedNumbers) => {
-              setPhoneNumbers(updatedNumbers); // Actualiza la lista completa de números
+            emails={emails}
+            onEmailChange={(updatedEmails) => {
+              setEmails(updatedEmails); // Actualiza la lista completa de correos
             }}
-            validatePhoneNumber={(phone) => /^[0-9]{10}$/.test(phone)} // Validación para números de teléfono
+            validateEmail={(email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
             dragging={dragging}
             uploadedFile={uploadedFile}
             onFileDrop={(e) => {
@@ -152,4 +152,4 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   );
 };
 
-export default ModalSms;
+export default ModalMail;

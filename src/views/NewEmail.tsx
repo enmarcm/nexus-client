@@ -23,7 +23,7 @@ const NewEmail = () => {
           {/* Encabezado */}
           <div className="w-full flex items-center justify-between">
             <div className="w-9/12">
-              <ButtonUseTemplate />
+              <ButtonUseTemplate  type="email" setContent={setContent} />
             </div>
             <div className="w-3/12 flex items-center justify-end">
               <HTMLSelect

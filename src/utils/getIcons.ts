@@ -38,9 +38,13 @@ import {
   FaTablet,
   FaLaptop,
   FaDesktop,
+  FaUsers,
+  FaAddressBook,
 } from "react-icons/fa";
+import { FaFolderClosed, FaSheetPlastic } from "react-icons/fa6";
 
 export const icons: { [key: string]: IconType } = {
+  // Inglés
   dashboard: FaChartBar,
   inbox: FaInbox,
   accounts: FaUser,
@@ -79,9 +83,68 @@ export const icons: { [key: string]: IconType } = {
   tablet: FaTablet,
   laptop: FaLaptop,
   desktop: FaDesktop,
+
+  // Español
+  tablero: FaChartBar,
+  bandeja: FaInbox,
+  cuentas: FaUser,
+  calendario: FaCalendarAlt,
+  buscar: FaSearch,
+  analitica: FaChartLine,
+  archivos: FaFolder,
+  configuracion: FaCog,
+  inicio: FaHome,
+  notificaciones: FaBell,
   mensajes: FaEnvelope,
+  favoritos: FaHeart,
+  estrellas: FaStar,
+  me_gusta: FaThumbsUp,
+  comentarios: FaComment,
+  compartir: FaShare,
+  bloquear: FaLock,
+  desbloquear: FaUnlock,
+  llave: FaKey,
+  papelera: FaTrash,
+  editar: FaEdit,
+  guardar: FaSave,
+  descargar: FaDownload,
+  subir: FaUpload,
+  imprimir: FaPrint,
+  camara: FaCamera,
+  musica: FaMusic,
+  microfono: FaMicrophone,
+  auriculares: FaHeadphones,
+  mundo: FaGlobe,
+  mapa: FaMap,
+  ubicacion: FaLocationArrow,
+  telefono: FaPhone,
+  movil: FaMobile,
+  tableta: FaTablet,
+  portatil: FaLaptop,
+  escritorio: FaDesktop,
+
+  grupos: FaUsers,
+  contactos: FaAddressBook,
+  plantillas: FaSheetPlastic,
+  ajustes: FaCog,
 };
 
 export const getIcon = (title: string): IconType => {
-  return icons[title.toLowerCase()] || FaFolder;
+  const lowerTitle = title.toLowerCase();
+
+  // Coincidencia exacta
+  if (icons[lowerTitle]) {
+    return icons[lowerTitle];
+  }
+
+  // Coincidencia parcial
+  const partialMatch = Object.keys(icons).find((key) =>
+    key.includes(lowerTitle)
+  );
+  if (partialMatch) {
+    return icons[partialMatch];
+  }
+
+  // Icono por defecto
+  return FaFolder;
 };

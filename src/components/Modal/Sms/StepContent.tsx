@@ -70,7 +70,7 @@ const StepContent: React.FC<StepContentProps> = ({
                   <input
                     type="text"
                     value={phone}
-                    placeholder="Número de teléfono"
+                    placeholder="04121704005"
                     className={`w-full p-2 border ${
                       phone && !validatePhoneNumber(phone)
                         ? "border-red-500"
@@ -80,7 +80,7 @@ const StepContent: React.FC<StepContentProps> = ({
                       handlePhoneNumberChange(index, e.target.value)
                     }
                   />
-                  {phoneNumbers.length > 1 && (
+                  {phoneNumbers.length > 1 && phone.trim() !== "" && (
                     <button
                       className="text-red-500 hover:text-red-700"
                       onClick={() => handleRemovePhoneNumber(index)}

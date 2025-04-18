@@ -4,7 +4,7 @@ import { FaFileExcel, FaFileAlt } from "react-icons/fa";
 interface StepContentProps {
   step: string;
   emails: string[];
-  onEmailChange: (emails: string[]) => void; // Cambiado para aceptar un array de correos
+  onEmailChange: (emails: string[]) => void;
   validateEmail: (email: string) => boolean;
   dragging: boolean;
   uploadedFile: File | null;
@@ -42,17 +42,17 @@ const StepContent: React.FC<StepContentProps> = ({
     const updatedEmails = [...emails];
     updatedEmails[index] = value;
 
-    onEmailChange(updatedEmails); // Actualiza la lista completa de correos
+    onEmailChange(updatedEmails);
 
     // Si el usuario escribe en el último campo, agrega un nuevo campo vacío
     if (index === emails.length - 1 && value.trim() !== "") {
-      onEmailChange([...updatedEmails, ""]); // Agrega un nuevo campo vacío
+      onEmailChange([...updatedEmails, ""]);
     }
   };
 
   const handleRemoveEmail = (index: number) => {
     const updatedEmails = emails.filter((_, i) => i !== index);
-    onEmailChange(updatedEmails); // Actualiza la lista de correos
+    onEmailChange(updatedEmails);
   };
 
   return (
@@ -64,29 +64,31 @@ const StepContent: React.FC<StepContentProps> = ({
             <p className="text-gray-600 mb-4">
               Ingresa los correos electrónicos de los destinatarios:
             </p>
-            <div className="h-64 overflow-y-auto pr-2"> {/* Contenedor con scroll vertical */}
-              {emails.map((email, index) => (
-                <div key={index} className="flex items-center gap-2 mb-4">
-                  <input
-                    type="email"
-                    value={email}
-                    placeholder="Correo electrónico"
-                    className={`w-full p-2 border ${
-                      email && !validateEmail(email) ? "border-red-500" : "border-gray-300"
-                    } rounded`}
-                    onChange={(e) => handleEmailChange(index, e.target.value)}
-                  />
-                  {emails.length > 1 && (
-                    <button
-                      className="text-red-500 hover:text-red-700"
-                      onClick={() => handleRemoveEmail(index)}
-                    >
-                      Eliminar
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+            <div className="h-64 overflow-y-auto pr-2">
+  {emails.map((email, index) => (
+    <div key={index} className="flex items-center gap-2 mb-4">
+      <input
+        type="email"
+        value={email}
+        placeholder="Correo electrónico"
+        className={`w-full p-2 border ${
+          email && !validateEmail(email)
+            ? "border-red-500"
+            : "border-gray-300"
+        } rounded`}
+        onChange={(e) => handleEmailChange(index, e.target.value)}
+      />
+      {emails.length > 1 && email.trim() !== "" && (
+        <button
+          className="text-red-500 hover:text-red-700"
+          onClick={() => handleRemoveEmail(index)}
+        >
+          Eliminar
+        </button>
+      )}
+    </div>
+  ))}
+</div>
           </>
         )}
 
@@ -103,7 +105,8 @@ const StepContent: React.FC<StepContentProps> = ({
             >
               <h2 className="text-xl font-semibold mb-4">Cargar Archivo</h2>
               <p className="text-gray-600 mb-4">
-                Arrastra y suelta un archivo JSON o Excel aquí, o haz clic para seleccionarlo.
+                Arrastra y suelta un archivo JSON o Excel aquí, o haz clic para
+                seleccionarlo.
               </p>
               <input
                 type="file"
@@ -135,7 +138,9 @@ const StepContent: React.FC<StepContentProps> = ({
         {step === "grupo" && (
           <>
             <h2 className="text-xl font-semibold mb-4">Seleccionar Grupo</h2>
-            <p className="text-gray-600 mb-4">Busca y selecciona un grupo de destinatarios:</p>
+            <p className="text-gray-600 mb-4">
+              Busca y selecciona un grupo de destinatarios:
+            </p>
             <input
               type="text"
               placeholder="Buscar grupo"
@@ -160,7 +165,6 @@ const StepContent: React.FC<StepContentProps> = ({
         )}
       </div>
 
-      {/* Botones "Atrás" y "Confirmar" */}
       <div className="flex justify-between mt-4">
         <button
           className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
@@ -170,7 +174,9 @@ const StepContent: React.FC<StepContentProps> = ({
         </button>
         <button
           className={`px-4 py-2 rounded text-white ${
-            confirmDisabled ? "bg-gray-300 cursor-not-allowed" : "bg-purple-500 hover:bg-purple-600"
+            confirmDisabled
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-purple-500 hover:bg-purple-600"
           }`}
           onClick={onConfirm}
           disabled={confirmDisabled}

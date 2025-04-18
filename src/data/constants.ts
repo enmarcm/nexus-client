@@ -1,4 +1,4 @@
-import { title } from "process";
+import path from "path";
 
 export enum Routes {
   Login = "login",
@@ -8,6 +8,11 @@ export enum Routes {
   NewEmail = "emails/newEmail",
   SMS = "sms",
   SMSNew = "sms/newSms",
+  Groups = "groups",
+  NewGroup = "groups/newGroup",
+  Settings = "settings",
+  Template = "template",
+  TemplateNew = "template/newTemplate",
 }
 
 export const RoutesToIgnoreMenu = [Routes.Login, Routes.NotFound];
@@ -27,6 +32,21 @@ export const menuItems = [
     title: "Mensajes",
     src: Routes.SMS,
     path: `/${Routes.SMS}`,
+  },
+  {
+    title: "Grupos",
+    src: Routes.Groups,
+    path: `/${Routes.Groups}`,
+  },
+  {
+    title: "Plantillas",
+    src: Routes.Template,
+    path: `/${Routes.Template}`,
+  },
+  {
+    title: "Ajustes",
+    src: Routes.Settings,
+    path: `/${Routes.Settings}`,
   },
 ];
 
