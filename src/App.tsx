@@ -14,6 +14,7 @@ import Groups from "./views/Groups";
 import Templates from "./views/Templates";
 import NewTemplate from "./views/NewTemplate";
 import EditTemplate from "./views/EditTemplate";
+import Settings from "./views/Settings";
 
 const App = () => {
   const { sessionData } = useSession();
@@ -48,6 +49,7 @@ const App = () => {
           <Route path={AppRoutes.Template} element={<Templates/>}/> 
           <Route path={AppRoutes.TemplateNew} element={<NewTemplate/>}/> 
           <Route path={AppRoutes.EditTemplate} element={<EditTemplate/>}/> 
+          <Route path={AppRoutes.Settings} element={<Settings/>}/> 
         </Routes>
       </div>
     </div>
