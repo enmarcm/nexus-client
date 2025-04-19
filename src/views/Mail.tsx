@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Table from "../components/Table"; // Asegúrate de que la ruta sea correcta
 import useFetcho from "../customHooks/useFetcho";
 import { API_URL } from "../data/constants";
-import { filterDataEmails, getStatusColor } from "../utils/extraFunctions";
+import { filterDataEmails } from "../utils/extraFunctions";
 import { FaPlus } from "react-icons/fa"; // Importamos el ícono de "más"
 import ModalMail from "../components/Modal/Mail/ModalMail"; 
 import StatusSelector from "../components/StatusSelector";

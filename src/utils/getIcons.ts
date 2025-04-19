@@ -127,6 +127,8 @@ export const icons: { [key: string]: IconType } = {
   contactos: FaAddressBook,
   plantillas: FaSheetPlastic,
   ajustes: FaCog,
+  logs: FaFolderClosed,
+  log: FaFolderClosed,
 };
 
 export const getIcon = (title: string): IconType => {

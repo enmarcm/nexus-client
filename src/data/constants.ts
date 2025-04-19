@@ -14,6 +14,7 @@ export enum Routes {
   Template = "template",
   TemplateNew = "template/newTemplate",
   EditTemplate = "template/editTemplate",
+  Logs = "logs",
 }
 
 export const RoutesToIgnoreMenu = [Routes.Login, Routes.NotFound];
@@ -23,6 +24,10 @@ export const menuItems = [
     title: "Dashboard",
     src: Routes.Home,
     path: `/${Routes.Home}`,
+  },
+  { title: "Logs", 
+    src: Routes.Logs, 
+    path: `/${Routes.Logs}` 
   },
   {
     title: "Correos",
