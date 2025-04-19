@@ -2,16 +2,15 @@ import { FaFolder, FaPhoneAlt, FaWindowMaximize } from "react-icons/fa";
 import CardNotification from "../components/CardNotification";
 import ContainerGraphics from "../components/Graphics/ContainerGraphics";
 import Layout from "../components/Layout";
-import dataGraphics from "../data/graphics.json";
 import { FaPeopleGroup } from "react-icons/fa6";
-import configTables from "../data/tables.json"
+import configTables from "../data/tables.json";
 import ContainerTables from "../components/ContainerTables";
 import { useNavigate } from "react-router-dom";
-
+import useGraphics from "../customHooks/useGraphics";
 
 const Home = () => {
-
   const navigate = useNavigate();
+  const { valuesGraphics } = useGraphics();
 
   const handleButtonClick = () => {
     console.log("Clickki");
@@ -20,7 +19,7 @@ const Home = () => {
         navigate("/email");
       }, 1000);
     }, 300);
-  }
+  };
 
   return (
     <Layout title="Dashboard">
@@ -58,20 +57,16 @@ const Home = () => {
 
         <div className="flex h-80 gap-4 overflow-hidden">
           <div className="w-7/12 h-full min-h-full">
-            <ContainerGraphics configGraphics={dataGraphics.firstHomeGraphic} />
+            <ContainerGraphics configGraphics={valuesGraphics.firstGraphics} />
           </div>
 
           <div className="w-5/12 h-full min-h-full">
-            <ContainerGraphics
-              configGraphics={dataGraphics.secondHomeGraphic}
-            />
+            <ContainerGraphics configGraphics={valuesGraphics.secondGraphics} />
           </div>
-
-
         </div>
 
         <div className="w-full overflow-x-hidden">
-          <ContainerTables configTables={configTables}/>
+          <ContainerTables configTables={configTables} />
         </div>
       </section>
     </Layout>

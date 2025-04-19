@@ -7,6 +7,7 @@ interface FetchoParams {
   isCors?: boolean;
   token?: string;
   credentials?: boolean;
+  headers?: Record<string, string>;
 }
 
 const fetcho = async ({
@@ -15,6 +16,7 @@ const fetcho = async ({
   body,
   isCors = false,
   credentials = false,
+  headers = {},
 }: FetchoParams): Promise<Record<string, unknown> | false> => {
   try {
     const configToUse: any = {
@@ -22,7 +24,9 @@ const fetcho = async ({
       credentials: credentials ? "include" : "same-origin",
       cors: isCors ? "cors" : "no-cors",
       headers: {
+        ...headers,
         "Content-Type": "application/json",
+
       },
     };
 

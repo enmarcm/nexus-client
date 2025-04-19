@@ -55,8 +55,8 @@
       "type": "donut",
       "configElements": {
         "data": [
-          { "value": 580, "name": "Email", "color": "#2FE5A7" },
-          { "value": 484, "name": "SMS", "color": "#FF69B4" }
+          { "value": 580, "name": "Exitosos", "color": "#2FE5A7" },
+          { "value": 484, "name": "Fallidos", "color": "#FF69B4" }
         ]
       }
     },
@@ -67,8 +67,8 @@
       "type": "donut",
       "configElements": {
         "data": [
-          { "value": 580, "name": "Email", "color": "#2FE5A7" },
-          { "value": 484, "name": "SMS", "color": "#FF69B4" }
+          { "value": 580, "name": "Exitosos", "color": "#2FE5A7" },
+          { "value": 484, "name": "Fallidos", "color": "#FF69B4" }
         ]
       }
     }
