@@ -1,19 +1,20 @@
 import React, { useState } from "react";
-import { GroupTypeOptions } from "../../../views/Groups"; 
+import { StatusOptions } from "../../../views/Templates";
 
-interface NewGroupModalProps {
+
+interface NewTemplateModalProps {
   onClose: () => void;
-  onNext: (groupData: { tipo: GroupTypeOptions; nombre: string }) => void; // Cambia tipo a GroupTypeOptions
+  onNext: (templateData: { tipo: StatusOptions; nombre: string }) => void; // Cambia tipo a StatusOptions
 }
 
-const NewGroupModal: React.FC<NewGroupModalProps> = ({ onClose, onNext }) => {
-  const [tipo, setTipo] = useState<GroupTypeOptions>(GroupTypeOptions.EMAIL); // Tipo por defecto
-  const [nombre, setNombre] = useState<string>(""); // Nombre del grupo
+const NewTemplateModal: React.FC<NewTemplateModalProps> = ({ onClose, onNext }) => {
+  const [tipo, setTipo] = useState<StatusOptions>(StatusOptions.EMAIL); // Tipo por defecto
+  const [nombre, setNombre] = useState<string>(""); // Nombre de la plantilla
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleNext = () => {
     if (!nombre.trim()) {
-      setErrorMessage("Por favor, ingresa un nombre para el grupo.");
+      setErrorMessage("Por favor, ingresa un nombre para la plantilla.");
       return;
     }
     setErrorMessage(""); // Limpia el mensaje de error
@@ -34,31 +35,31 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ onClose, onNext }) => {
           ✕
         </button>
 
-        <h2 className="text-lg font-semibold mb-4">Crear Nuevo Grupo</h2>
+        <h2 className="text-lg font-semibold mb-4">Crear Nueva Plantilla</h2>
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Tipo de Grupo
+            Tipo de Plantilla
           </label>
           <select
             value={tipo}
-            onChange={(e) => setTipo(e.target.value as GroupTypeOptions)} // Convierte el valor a GroupTypeOptions
+            onChange={(e) => setTipo(e.target.value as StatusOptions)} // Convierte el valor a StatusOptions
             className="w-full p-2 border border-gray-300 rounded"
           >
-            <option value={GroupTypeOptions.EMAIL}>Email</option>
-            <option value={GroupTypeOptions.SMS}>SMS</option>
+            <option value={StatusOptions.EMAIL}>Email</option>
+            <option value={StatusOptions.SMS}>SMS</option>
           </select>
         </div>
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre del Grupo
+            Nombre de la Plantilla
           </label>
           <input
             type="text"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            placeholder="Ingresa el nombre del grupo"
+            placeholder="Ingresa el nombre de la plantilla"
             className="w-full p-2 border border-gray-300 rounded"
           />
           {errorMessage && (
@@ -77,4 +78,4 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ onClose, onNext }) => {
   );
 };
 
-export default NewGroupModal;
+export default NewTemplateModal;

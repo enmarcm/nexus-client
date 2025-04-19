@@ -27,7 +27,7 @@ const StatusSelector = ({ status, setStatus }: { status: string; setStatus: (val
   };
 
   return (
-    <div className="relative inline-block text-left ">
+    <div className="relative inline-block text-left 0">
       <div>
         <button
           type="button"

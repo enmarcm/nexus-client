@@ -11,6 +11,9 @@ import NewEmail from "./views/NewEmail";
 import SMS from "./views/SMS";
 import NewSms from "./views/NewSms";
 import Groups from "./views/Groups";
+import Templates from "./views/Templates";
+import NewTemplate from "./views/NewTemplate";
+import EditTemplate from "./views/EditTemplate";
 
 const App = () => {
   const { sessionData } = useSession();
@@ -41,7 +44,10 @@ const App = () => {
           <Route path={AppRoutes.NewEmail} element={<NewEmail/>}/>
           <Route path={AppRoutes.SMS} element={<SMS/>}/>
           <Route path={AppRoutes.SMSNew} element={<NewSms/>}/>
-          <Route path={AppRoutes.Groups} element={<Groups/>}/>
+          <Route path={AppRoutes.Groups} element={<Groups/>}/> 
+          <Route path={AppRoutes.Template} element={<Templates/>}/> 
+          <Route path={AppRoutes.TemplateNew} element={<NewTemplate/>}/> 
+          <Route path={AppRoutes.EditTemplate} element={<EditTemplate/>}/> 
         </Routes>
       </div>
     </div>

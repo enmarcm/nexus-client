@@ -13,6 +13,7 @@ export enum Routes {
   Settings = "settings",
   Template = "template",
   TemplateNew = "template/newTemplate",
+  EditTemplate = "template/editTemplate",
 }
 
 export const RoutesToIgnoreMenu = [Routes.Login, Routes.NotFound];

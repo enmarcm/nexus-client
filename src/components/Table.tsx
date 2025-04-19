@@ -7,7 +7,7 @@ interface TableProps {
   editable?: boolean; // Prop para habilitar edición
   erasable?: boolean; // Prop para habilitar eliminación
   onEdit?: (row: { [key: string]: any }) => void; // Callback para editar
-  onErase?: any
+  onErase?: any;
   modalComponent?: React.ReactNode; // Componente modal completo
 }
 
@@ -89,7 +89,9 @@ const Table: React.FC<TableProps> = ({
                   <span>{column}</span>
                   <span className="w-4 flex justify-center">
                     {getClassNamesFor(column) === "ascending" && <FaSortUp />}
-                    {getClassNamesFor(column) === "descending" && <FaSortDown />}
+                    {getClassNamesFor(column) === "descending" && (
+                      <FaSortDown />
+                    )}
                   </span>
                 </div>
               </th>
