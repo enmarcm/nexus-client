@@ -12,7 +12,7 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [isClosing, setIsClosing] = useState(false); // Estado para manejar la animación de cierre
-  const [emails, setEmails] = useState<string[]>([""]);
+  const [emails, setEmails] = useState<string[]>([]);
   const [dragging, setDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -132,9 +132,8 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               const file = e.dataTransfer.files[0];
               if (file) setUploadedFile(file);
             }}
-            onFileUpload={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setUploadedFile(file);
+            onFileUpload={(file) => {
+              if (file) setUploadedFile(file); // Ahora recibe directamente un archivo
             }}
             searchQuery={searchQuery}
             onSearchQueryChange={setSearchQuery}

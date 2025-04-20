@@ -63,11 +63,12 @@ const NewEmail = () => {
             setRecipientData(parsedData);
             setFileLoaded(true);
             setFileName(file.name);
-            console.log("Datos cargados:", parsedData); // Mostrar los datos cargados en la consola
+            console.log("Datos cargados del JSON:", parsedData); // Depuración
           } else {
             alert("El archivo JSON no tiene el formato correcto.");
           }
         } catch (error) {
+          console.error("Error al leer el archivo JSON:", error); // Depuración
           alert("Error al leer el archivo JSON.");
         }
       } else if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
@@ -88,7 +89,7 @@ const NewEmail = () => {
         setRecipientData(formattedData);
         setFileLoaded(true);
         setFileName(file.name);
-        console.log("Datos cargados:", formattedData); // Mostrar los datos cargados en la consola
+        console.log("Datos cargados del Excel:", formattedData); // Depuración
       }
     };
 
@@ -125,7 +126,7 @@ const NewEmail = () => {
       // Enviar correos uno por uno
       for (const recipient of recipientData) {
         const personalizedContent = replaceVariables(content, recipient.variables);
-        console.log(`Enviando a ${recipient.correo} con contenido:`, personalizedContent); // Mostrar el contenido personalizado
+        console.log(`Enviando a ${recipient.correo} con contenido:`, personalizedContent); // Depuración
         await sendEmail(recipient.correo, personalizedContent);
       }
 
