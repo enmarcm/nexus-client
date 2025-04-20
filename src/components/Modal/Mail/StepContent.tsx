@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaFileExcel, FaFileAlt } from "react-icons/fa";
+import * as XLSX from "xlsx";
 
 interface StepContentProps {
   step: string;
@@ -38,6 +39,8 @@ const StepContent: React.FC<StepContentProps> = ({
   onConfirm,
   confirmDisabled = false,
 }) => {
+  const [invalidEmails, setInvalidEmails] = useState<string[]>([]);
+
   const handleEmailChange = (index: number, value: string) => {
     const updatedEmails = [...emails];
     updatedEmails[index] = value;
@@ -55,6 +58,57 @@ const StepContent: React.FC<StepContentProps> = ({
     onEmailChange(updatedEmails);
   };
 
+  const handleFileRead = async (file: File) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const data = e.target?.result;
+      if (file.type === "application/json") {
+        try {
+          const parsedData = JSON.parse(data as string);
+          if (Array.isArray(parsedData)) {
+            processEmails(parsedData);
+          } else {
+            alert("El archivo JSON no tiene el formato correcto.");
+          }
+        } catch (error) {
+          alert("Error al leer el archivo JSON.");
+        }
+      } else if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+        const workbook = XLSX.read(data, { type: "binary" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as string[][];
+        const emailsFromXlsx = parsedData.map((row) => row[0]).filter((email) => typeof email === "string");
+        processEmails(emailsFromXlsx);
+      }
+    };
+
+    if (file.type === "application/json") {
+      reader.readAsText(file);
+    } else if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+      reader.readAsBinaryString(file);
+    }
+  };
+
+  const processEmails = (emails: string[]) => {
+    const validEmails = emails.filter((email) => validateEmail(email));
+    const invalidEmails = emails.filter((email) => !validateEmail(email));
+    onEmailChange(validEmails);
+    setInvalidEmails(invalidEmails);
+  };
+
+  const handleConfirm = () => {
+    if (step === "manual") {
+      // Eliminar el último elemento si está vacío
+      const updatedEmails = emails.filter((email, index) => {
+        return index !== emails.length - 1 || email.trim() !== "";
+      });
+      onEmailChange(updatedEmails);
+    }
+    onConfirm();
+  };
+
   return (
     <div className="flex flex-col justify-between h-full">
       <div>
@@ -65,30 +119,30 @@ const StepContent: React.FC<StepContentProps> = ({
               Ingresa los correos electrónicos de los destinatarios:
             </p>
             <div className="h-64 overflow-y-auto pr-2">
-  {emails.map((email, index) => (
-    <div key={index} className="flex items-center gap-2 mb-4">
-      <input
-        type="email"
-        value={email}
-        placeholder="Correo electrónico"
-        className={`w-full p-2 border ${
-          email && !validateEmail(email)
-            ? "border-red-500"
-            : "border-gray-300"
-        } rounded`}
-        onChange={(e) => handleEmailChange(index, e.target.value)}
-      />
-      {emails.length > 1 && email.trim() !== "" && (
-        <button
-          className="text-red-500 hover:text-red-700"
-          onClick={() => handleRemoveEmail(index)}
-        >
-          Eliminar
-        </button>
-      )}
-    </div>
-  ))}
-</div>
+              {emails.map((email, index) => (
+                <div key={index} className="flex items-center gap-2 mb-4">
+                  <input
+                    type="email"
+                    value={email}
+                    placeholder="Correo electrónico"
+                    className={`w-full p-2 border ${
+                      email && !validateEmail(email)
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    } rounded`}
+                    onChange={(e) => handleEmailChange(index, e.target.value)}
+                  />
+                  {emails.length > 1 && email.trim() !== "" && (
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleRemoveEmail(index)}
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           </>
         )}
 
@@ -113,7 +167,10 @@ const StepContent: React.FC<StepContentProps> = ({
                 accept=".json, .xlsx"
                 className="hidden"
                 id="file-upload"
-                onChange={onFileUpload}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileRead(file);
+                }}
               />
               <label
                 htmlFor="file-upload"
@@ -132,6 +189,30 @@ const StepContent: React.FC<StepContentProps> = ({
                 </div>
               )}
             </div>
+
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold">Correos válidos:</h3>
+              <ul className="list-disc list-inside">
+                {emails.map((email, index) => (
+                  <li key={index} className="text-green-600">
+                    {email}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {invalidEmails.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-red-600">Correos inválidos:</h3>
+                <ul className="list-disc list-inside">
+                  {invalidEmails.map((email, index) => (
+                    <li key={index} className="text-red-600">
+                      {email}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </>
         )}
 
@@ -178,7 +259,7 @@ const StepContent: React.FC<StepContentProps> = ({
               ? "bg-gray-300 cursor-not-allowed"
               : "bg-purple-500 hover:bg-purple-600"
           }`}
-          onClick={onConfirm}
+          onClick={handleConfirm}
           disabled={confirmDisabled}
         >
           Confirmar

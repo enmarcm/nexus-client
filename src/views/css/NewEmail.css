@@ -1,0 +1,35 @@
+@keyframes circle-out-hesitate {
+  0% {
+    clip-path: circle(125%);
+  }
+  40% {
+    clip-path: circle(40%);
+  }
+  100% {
+    clip-path: circle(0%);
+  }
+}
+
+.transition-style-out-circle-hesitate {
+  animation: 2.5s cubic-bezier(0.25, 1, 0.3, 1) circle-out-hesitate both;
+}
+
+@keyframes email-fly-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-200px);
+  }
+}
+
+.email-icon-animation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  animation: email-fly-up 2s ease-in-out forwards;
+}

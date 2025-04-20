@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Para redirigir
 import { FaEnvelope, FaTimes } from "react-icons/fa";
 import { useEmailDataGlobal } from "../../../context/EmailDataGlobal";
-import CardOptions from "../CardOptions"; 
+import CardOptions from "../CardOptions";
 import StepContent from "./StepContent";
 import "../../css/ModalMail.css";
 
@@ -46,6 +46,7 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       console.log("Correos confirmados:", emails);
     } else if (step === 2 && selectedCard === "archivo") {
       console.log("Archivo confirmado:", uploadedFile);
+      console.log("Correos confirmados:", emails);
     } else if (step === 2 && selectedCard === "grupo") {
       console.log("Grupo confirmado:", selectedGroup);
     }
@@ -120,7 +121,7 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             step={selectedCard!}
             emails={emails}
             onEmailChange={(updatedEmails) => {
-              setEmails(updatedEmails); // Actualiza la lista completa de correos
+              setEmails(updatedEmails);
             }}
             validateEmail={(email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
             dragging={dragging}
