@@ -1,7 +1,11 @@
 import React, { useState } from "react";
+import { GroupTypeOptions } from "../../../views/Groups";
+import { API_URL } from "../../../data/constants";
+import useFetcho from "../../../customHooks/useFetcho";
+// import { create } from "domain";
 
 interface AddParticipantsModalProps {
-  tipo: string;
+  tipo: GroupTypeOptions;
   nombre: string;
   onClose: () => void;
   onBack: () => void;
@@ -13,14 +17,15 @@ const AddParticipantsModal: React.FC<AddParticipantsModalProps> = ({
   nombre,
   onClose,
   onBack,
-  onCreateGroup,
+  // onCreateGroup,
 }) => {
   const [participants, setParticipants] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const  fetchWithLoading  = useFetcho();
 
   const validateInput = (value: string) => {
-    if (tipo === "SMS") {
+    if (tipo === 2) {
       const phoneRegex = /^(0412|0424|0414|0426|0416)\d{7}$/;
       return phoneRegex.test(value);
     } else {
@@ -32,20 +37,42 @@ const AddParticipantsModal: React.FC<AddParticipantsModalProps> = ({
   const handleAddParticipant = () => {
     if (!inputValue.trim()) {
       setErrorMessage(
-        `Por favor, ingresa un ${tipo === "SMS" ? "teléfono" : "correo"}.`
+        `Por favor, ingresa un ${Number.parseInt(tipo.toString()) === 2 ? "telefono" : "correo"}.`
       );
       return;
     }
     if (!validateInput(inputValue.trim())) {
       setErrorMessage(
-        `El ${tipo === "SMS" ? "teléfono" : "correo"} ingresado no es válido.`
+        `El ${Number.parseInt(tipo.toString()) === 2 ? "telefono" : "correo"} ingresado no es válido.`
       );
       return;
     }
+    console.log("Participante agregado:", inputValue.trim());
+    add_participant(inputValue.trim());
     setParticipants((prev) => [...prev, inputValue.trim()]);
+    // console.log("Participantes:", participants);
     setInputValue("");
     setErrorMessage(""); // Limpia el mensaje de error
   };
+
+  const add_participant = (participant: string) => {
+    try {
+      const response = fetchWithLoading({
+        url: `${API_URL}/toProcess`,
+        method: "POST",
+        body: {
+          object: "GROUP",
+          method: "add_to_saved",
+          params: {
+            id_type: Number.parseInt(tipo.toString()),
+            co_saved: participant
+          }
+        }
+      })} catch (error) {
+        console.error(`Error al agregar participante`, error);
+      }
+  }
+
 
   const handleRemoveParticipant = (index: number) => {
     setParticipants((prev) => prev.filter((_, i) => i !== index));
@@ -56,8 +83,31 @@ const AddParticipantsModal: React.FC<AddParticipantsModalProps> = ({
       setErrorMessage("Por favor, agrega al menos un participante.");
       return;
     }
-    onCreateGroup(participants);
+    console.log("Grupo creado con participantes:", participants);
+    createGroup();
   };
+
+    const createGroup = async () => {
+      try {
+        const response = await fetchWithLoading({
+          url: `${API_URL}/toProcess`,
+          method: "POST",
+          body: {
+            object: "GROUP",
+            method: "create_group",
+            params: {
+              id_user: 1,
+              id_type: Number.parseInt(tipo.toString()),
+              de_group: nombre,
+              co_saved_list: participants
+            },
+          },
+        });
+        // console.log(`Correo enviado a ${}:`, response);
+      } catch (error) {
+        console.error(`Error al crear grupo`, error);
+      }
+    };
 
   return (
     <div
@@ -89,7 +139,7 @@ const AddParticipantsModal: React.FC<AddParticipantsModalProps> = ({
 
           <h2 className="text-lg font-semibold mb-4">Agregar Participantes</h2>
         <p className="text-sm text-gray-600 mb-6">
-          Grupo: <strong>{nombre}</strong> ({tipo})
+          Grupo: <strong>{nombre}</strong> ({Number.parseInt(tipo.toString()) === 2 ? "SMS" : "EMAIL"})
         </p>
 
             <h3 className="text-sm font-medium text-gray-700 mb-2">
@@ -112,7 +162,7 @@ const AddParticipantsModal: React.FC<AddParticipantsModalProps> = ({
           {/* Columna derecha: Agregar nuevo participante */}
           <div className="flex flex-col w-1/2">
               <h3 className="text-sm font-medium text-gray-700 mb-2">
-                Agregar {tipo === "SMS" ? "Teléfono" : "Correo"}
+                Agregar {Number.parseInt(tipo.toString()) === 2 ? "telefono" : "correo"}
               </h3>
               <div className="flex  flex-col gap-2 ">
                 <input
@@ -120,7 +170,7 @@ const AddParticipantsModal: React.FC<AddParticipantsModalProps> = ({
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder={`Ingresa un ${
-                    tipo === "SMS" ? "teléfono" : "correo"
+                    Number.parseInt(tipo.toString()) === 2 ? "telefono" : "correo"
                   }`}
                   className="flex-1 p-2 border border-gray-300 rounded"
                 />

@@ -42,7 +42,9 @@ const NewGroupModal: React.FC<NewGroupModalProps> = ({ onClose, onNext }) => {
           </label>
           <select
             value={tipo}
-            onChange={(e) => setTipo(e.target.value as GroupTypeOptions)} // Convierte el valor a GroupTypeOptions
+            onChange={(e) => {setTipo(e.target.value as unknown as GroupTypeOptions)
+              console.log(e.target.value)}
+            } // Convierte el valor a GroupTypeOptions
             className="w-full p-2 border border-gray-300 rounded"
           >
             <option value={GroupTypeOptions.EMAIL}>Email</option>

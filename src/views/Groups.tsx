@@ -8,8 +8,8 @@ import AddParticipantsModal from "../components/Modal/Group/AddParticipantsModal
 import ConfirmDeleteModal from "../components/Modal/Group/ConfirmDeleteModal";
 
 export enum GroupTypeOptions {
-  EMAIL = "Email",
-  SMS = "SMS",
+  EMAIL = 1,
+  SMS = 2,
 }
 
 const Groups = () => {
@@ -120,7 +120,7 @@ const Groups = () => {
           <h2 className="font-semibold text-xl">FILTRAR POR</h2>
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as GroupTypeOptions)}
+            onChange={(e) => setFilterType(e.target.value as unknown as GroupTypeOptions)}
             className="border border-gray-300 rounded-md px-6 py-3 text-sm w-64 shadow-sm focus:ring-2 focus:ring-blue-300"
           >
             <option value={GroupTypeOptions.EMAIL}>Email</option>
