@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
-import LoadFiles from "../components/Sends/Mail/LoadFiles";
+import LoadFiles from "../components/Sends/LoadFiles";
 import UploadAttachmentsChange from "../components/UploadAttachmentsChange";
 import ButtonSend from "../components/Sends/ButtonSend";
 import ButtonUseTemplate from "../components/Sends/ButtonUseTemplate";

@@ -215,34 +215,47 @@ const StepContent: React.FC<StepContentProps> = ({
           </>
         )}
 
-        {step === "grupo" && (
-          <>
-            <h2 className="text-xl font-semibold mb-4">Seleccionar Grupo</h2>
-            <p className="text-gray-600 mb-4">
-              Busca y selecciona un grupo de destinatarios:
-            </p>
-            <input
-              type="text"
-              placeholder="Buscar grupo"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              value={searchQuery}
-              onChange={(e) => onSearchQueryChange(e.target.value)}
-            />
-            <ul className="w-full border border-gray-300 rounded p-4">
-              {filteredGroups.map((group) => (
-                <li
-                  key={group.id}
-                  className={`p-2 hover:bg-gray-100 cursor-pointer ${
-                    selectedGroup === group.id ? "bg-purple-100" : ""
-                  }`}
-                  onClick={() => onGroupSelect(group.id)}
-                >
-                  {group.name} - {group.members.length} destinatarios
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+{step === "grupo" && (
+  <>
+    <h2 className="text-xl font-semibold mb-4">Seleccionar Grupo</h2>
+    <p className="text-gray-600 mb-4">
+      Busca y selecciona un grupo de destinatarios:
+    </p>
+    <input
+  type="text"
+  placeholder="Buscar grupo"
+  className="w-full p-2 border border-gray-300 rounded mb-4"
+  value={searchQuery}
+  onChange={(e) => onSearchQueryChange(e.target.value)}
+/>
+<ul className="w-full border border-gray-300 rounded p-4">
+  {filteredGroups.map((group) => (
+    <li
+      key={group.id}
+      className={`relative group p-2 hover:bg-gray-100 cursor-pointer ${
+        selectedGroup === group.id ? "bg-purple-100" : ""
+      }`}
+      onClick={() => onGroupSelect(group.id)}
+    >
+      {group.name} - {group.members.length} destinatarios
+
+      {/* Tooltip para mostrar los correos */}
+      <div
+        className="absolute top-1/2 transform -translate-y-1/2 left-full ml-4 w-64 p-2 bg-white border border-gray-300 rounded shadow-lg text-sm text-gray-700 hidden group-hover:block z-10"
+        style={{ maxHeight: "200px", overflowY: "auto" }} // Scroll si hay muchos correos
+      >
+        <h3 className="font-semibold mb-2">Correos del grupo:</h3>
+        <ul className="list-disc list-inside">
+          {group.members.map((email, index) => (
+            <li key={index}>{email}</li>
+          ))}
+        </ul>
+      </div>
+    </li>
+  ))}
+</ul>
+  </>
+)}
       </div>
 
       <div className="flex justify-between mt-4">

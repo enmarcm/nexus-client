@@ -1,29 +1,81 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Para redirigir
-import { FaSms, FaTimes } from "react-icons/fa"; // Cambiado a ícono de SMS
-import CardOptions from "../CardOptions"; 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaSms, FaTimes } from "react-icons/fa";
+import CardOptions from "../CardOptions";
 import StepContent from "./StepContent";
-import "../../css/ModalSms.css"; // Cambiado para SMS
-import { useSmsDataGlobal } from "../../../context/SmsDataGlobal"; 
+import "../../css/ModalSms.css";
+import { useSmsDataGlobal } from "../../../context/SmsDataGlobal";
+import useFetcho from "../../../customHooks/useFetcho";
+import { API_URL } from "../../../data/constants";
 
 const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const { dispatch } = useSmsDataGlobal(); // Usar el contexto global para SMS
-  const navigate = useNavigate(); // Hook para redirigir
+  const { dispatch } = useSmsDataGlobal();
+  const navigate = useNavigate();
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [step, setStep] = useState(1);
-  const [isClosing, setIsClosing] = useState(false); // Estado para manejar la animación de cierre
-  const [phoneNumbers, setPhoneNumbers] = useState<string[]>([""]); // Cambiado a números de teléfono
+  const [isClosing, setIsClosing] = useState(false);
+  const [phoneNumbers, setPhoneNumbers] = useState<string[]>([""]);
   const [dragging, setDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [groups, setGroups] = useState<
+    { id: string; name: string; members: string[] }[]
+  >([]);
 
-  // Definir los grupos
-  const groups = [
-    { id: "1", name: "Grupo 1", members: 10 },
-    { id: "2", name: "Grupo 2", members: 15 },
-    { id: "3", name: "Grupo 3", members: 8 },
-  ];
+  const fetchWithLoading = useFetcho();
+
+  const fetchGroups = async () => {
+    try {
+      const response = (await fetchWithLoading({
+        url: `${API_URL}/toProcess`,
+        method: "POST",
+        body: {
+          object: "GROUP",
+          method: "obtain_all_group",
+        },
+      })) as any;
+  
+      // Filtrar los grupos que tienen de_type igual a "sms"
+      const smsGroups = response.filter((item: any) => item.de_type === "sms");
+  
+      // Usar Promise.all para obtener los miembros de los grupos filtrados
+      const mappedResponse = await Promise.all(
+        smsGroups.map(async (item: any) => {
+          const membersResponse = (await fetchWithLoading({
+            url: `${API_URL}/toProcess`,
+            method: "POST",
+            body: {
+              object: "GROUP",
+              method: "obtain_member_group",
+              params: {
+                id_group: item.id_group,
+              },
+            }})) as any;
+            
+          const members = membersResponse.map((member: any) => member.content);
+  
+          return {
+            id: item.id_group,
+            name: item.de_group,
+            total: item.total_saved,
+            type: item.de_type,
+            members,
+          };
+        })
+      );
+  
+      console.log(mappedResponse);
+  
+      setGroups(mappedResponse);
+    } catch (error) {
+      console.error("Error al obtener los grupos:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
 
   const handleNextStep = () => {
     if (selectedCard) setStep(2);
@@ -35,10 +87,10 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleClose = () => {
-    setIsClosing(true); // Activar animación de cierre
+    setIsClosing(true);
     setTimeout(() => {
-      onClose(); // Cerrar el modal después de la animación
-    }, 500); // Duración de la animación de cierre
+      onClose();
+    }, 500);
   };
 
   const handleConfirm = () => {
@@ -46,6 +98,7 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       console.log("Números confirmados:", phoneNumbers);
     } else if (step === 2 && selectedCard === "archivo") {
       console.log("Archivo confirmado:", uploadedFile);
+      console.log("Números confirmados:", phoneNumbers);
     } else if (step === 2 && selectedCard === "grupo") {
       console.log("Grupo confirmado:", selectedGroup);
     }
@@ -65,11 +118,11 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 ${
         isClosing ? "modal-close-animation" : "modal-open-animation"
       }`}
-      onClick={handleClose} // Detecta clics fuera del modal
+      onClick={handleClose}
     >
       <div
         className="bg-white rounded-lg shadow-lg p-6 w-[55rem] h-[28rem] flex flex-col gap-4 relative"
-        onClick={(e) => e.stopPropagation()} // Evita que los clics dentro del modal cierren el modal
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
@@ -116,13 +169,15 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </>
         ) : (
-            <StepContent
+          <StepContent
             step={selectedCard!}
-            phoneNumbers={phoneNumbers} // Cambiado a phoneNumbers
+            phoneNumbers={phoneNumbers}
             onPhoneNumberChange={(updatedNumbers) => {
-              setPhoneNumbers(updatedNumbers); // Actualiza la lista completa de números
+              setPhoneNumbers(updatedNumbers);
             }}
-            validatePhoneNumber={(phone) => /^(0412|0424|0414|0416|0426)[0-9]{7}$/.test(phone)} 
+            validatePhoneNumber={(phone) =>
+              /^(0412|0424|0414|0416|0426)[0-9]{7}$/.test(phone)
+            }
             dragging={dragging}
             uploadedFile={uploadedFile}
             onFileDrop={(e) => {
@@ -141,7 +196,13 @@ const ModalSms: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               group.name.toLowerCase().includes(searchQuery.toLowerCase())
             )}
             selectedGroup={selectedGroup}
-            onGroupSelect={setSelectedGroup}
+            onGroupSelect={(id) => {
+              setSelectedGroup(id);
+              const group = groups.find((g) => g.id === id);
+              if (group) {
+                setPhoneNumbers([...phoneNumbers, ...group.members]);
+              }
+            }}
             onBack={handleBack}
             onConfirm={handleConfirm}
             confirmDisabled={selectedCard === "grupo" && !selectedGroup}

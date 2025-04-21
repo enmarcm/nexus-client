@@ -35,24 +35,28 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           method: "obtain_all_group",
         },
       })) as any;
-  
-      // Usar Promise.all para obtener los miembros de todos los grupos
+
+      const smsGroups = response.filter(
+        (item: any) => item.de_type === "email"
+      );
+
+      // Usar Promise.all para obtener los miembros de los grupos filtrados
       const mappedResponse = await Promise.all(
-        response.map(async (item: any) => {
+        smsGroups.map(async (item: any) => {
           const membersResponse = (await fetchWithLoading({
             url: `${API_URL}/toProcess`,
             method: "POST",
             body: {
               object: "GROUP",
               method: "obtain_member_group",
-              params:{
+              params: {
                 id_group: item.id_group,
-              }
+              },
             },
           })) as any;
-  
+
           const members = membersResponse.map((member: any) => member.content);
-  
+
           return {
             id: item.id_group,
             name: item.de_group,
@@ -62,9 +66,9 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           };
         })
       );
-  
+
       console.log(mappedResponse);
-  
+
       setGroups(mappedResponse);
     } catch (error) {
       console.error("Error al obtener los grupos:", error);
