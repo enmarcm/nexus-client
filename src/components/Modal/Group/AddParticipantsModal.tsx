@@ -25,8 +25,9 @@ const AddParticipantsModal: React.FC<AddParticipantsModalProps> = ({
   const  fetchWithLoading  = useFetcho();
 
   const validateInput = (value: string) => {
-    if (tipo === 2) {
+    if (Number.parseInt(tipo.toString()) === 2) {
       const phoneRegex = /^(0412|0424|0414|0426|0416)\d{7}$/;
+      console.log("Validando telefono:", value);
       return phoneRegex.test(value);
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -55,7 +56,7 @@ const AddParticipantsModal: React.FC<AddParticipantsModalProps> = ({
     setErrorMessage(""); // Limpia el mensaje de error
   };
 
-  const add_participant = (participant: string) => {
+  const add_participant = async (participant: string) => {
     try {
       const response = fetchWithLoading({
         url: `${API_URL}/toProcess`,
