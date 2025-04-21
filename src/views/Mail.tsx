@@ -9,7 +9,7 @@ import ModalMail from "../components/Modal/Mail/ModalMail";
 import StatusSelector from "../components/StatusSelector";
 
 const Mail = () => {
-  const [status, setStatus] = useState("fallidos");
+  const [status, setStatus] = useState("todos");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal

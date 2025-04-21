@@ -6,15 +6,18 @@ import dataGraphics from "../data/graphics.json";
 import { FaPeopleGroup } from "react-icons/fa6";
 import configTables from "../data/tables.json";
 import ContainerTables from "../components/ContainerTables";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import useFetcho from "../customHooks/useFetcho";
-import { url } from "inspector";
 import { API_URL } from "../data/constants";
+import DialogCardsHome from "../components/DialogCardsHome";
+import useSession from "../customHooks/useSession";
 
 const Home = () => {
   const navigate = useNavigate();
   const fetchWithLoading = useFetcho();
+
+  const { sessionData } = useSession();
 
   const [valuesGraphics, setValuesGraphics] = useState({
     firstGraphics: dataGraphics.firstHomeGraphic,
@@ -22,6 +25,9 @@ const Home = () => {
   });
 
   const [valueTables, setValueTables] = useState(configTables);
+  const [data, setData] = useState<any>(null); // Datos de la API
+  const [dialogData, setDialogData] = useState<any>(null); // Datos para el diálogo
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Estado del diálogo
 
   const handleButtonClick = () => {
     console.log("Clickki");
@@ -73,7 +79,7 @@ const Home = () => {
     return data;
   };
 
-  //Ahora los de las tablas
+  // Ahora los de las tablas
   const handleEmailTable = async () => {
     const data = await fetchWithLoading(
       returnDataFetchReports("obtain_email_sends")
@@ -91,45 +97,42 @@ const Home = () => {
   };
 
   const handleUpdateTables = async () => {
-    const dataEmail = await handleEmailTable() as any;
-    const dataSMS = await handleSMSTable() as any;
-
+    const dataEmail = (await handleEmailTable()) as any;
+    const dataSMS = (await handleSMSTable()) as any;
 
     const dataMappedEmail = dataEmail.map((item: any) => {
       const newObject = {
-        "ID": item.id,
-        "CORREO ORIGEN": item.from ? item.from : "EN PROCESO", 
-        "CORREO DESTINO":item.content.to, 
-        "ASUNTO": item.content.subject, 
+        ID: item.id,
+        "CORREO ORIGEN": item.from ? item.from : "EN PROCESO",
+        "CORREO DESTINO": item.content.to,
+        ASUNTO: item.content.subject,
         "FECHA Y HORA": item.createdAt,
-        "ESTADO": item.status,
-      }
+        ESTADO: item.status,
+      };
 
       return newObject;
-    })
+    });
 
     const dataMappedSMS = dataSMS.map((item: any) => {
       const newObject = {
-        "ID": item.id,
-        "NUMERO DESTINO":item.content.to, 
+        ID: item.id,
+        "NUMERO DESTINO": item.content.to,
         "FECHA Y HORA": item.createdAt,
-        "ESTADO": item.status,
-      }
+        ESTADO: item.status,
+      };
 
       return newObject;
-    })
+    });
 
     console.log(dataMappedEmail, dataMappedSMS);
 
-   
     const newObject = [
-      {...configTables[0], data: dataMappedEmail },
-      {...configTables[1], data: dataMappedSMS },
-    ]
+      { ...configTables[0], data: dataMappedEmail },
+      { ...configTables[1], data: dataMappedSMS },
+    ];
 
     setValueTables(newObject as any);
-
-  }
+  };
 
   const handleUpdateGraphics = async () => {
     const emailPerDay = await handleEmailPerDay();
@@ -176,10 +179,74 @@ const Home = () => {
     setValuesGraphics(newObject as any);
   };
 
+  const fetchData = async () => {
+    try {
+      const id_user = sessionData?.user?.id; // Obtén el id_user desde la sesión
+      if (!id_user) {
+        console.error("No se encontró el id_user en la sesión.");
+        return;
+      }
+      const response = await fetchWithLoading({
+        url: `${API_URL}/toProcess`,
+        method: "POST",
+        body: {
+          object: "REPORTS",
+          method: "get_data_for_cards_dashboard",
+          params: {
+            id_user,
+          },
+      },
+      });
+
+      console.log(response);
+      setData(response);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const handleCardClick = (type: string) => {
+    if (!data) return;
+
+    let dialogContent = [];
+    switch (type) {
+      case "EMAIL":
+        dialogContent = data.EMAIL.map((item: any) => ({
+          title: "Correo",
+          value: item.name,
+        }));
+        break;
+      case "SMS":
+        dialogContent = data.SMS.map((item: any) => ({
+          title: "Número",
+          value: item.name,
+        }));
+        break;
+      case "TEMPLATES":
+        dialogContent = data.TEMPLATES.map((item: any) => ({
+          title: "Plantilla",
+          value: `${item.name} (${item.type})`,
+        }));
+        break;
+      case "GROUPS":
+        dialogContent = data.GROUPS.map((item: any) => ({
+          title: "Grupo",
+          value: `${item.name} (${item.members} miembros)`,
+        }));
+        break;
+      default:
+        dialogContent = [];
+    }
+
+    setDialogData({ type, content: dialogContent });
+    setIsDialogOpen(true);
+  };
+
   useEffect(() => {
-    //Aqui vamos a obtener la informacion de los graficos apenas empecemos
+    // Aquí vamos a obtener la información de los gráficos y tablas al cargar
     handleUpdateGraphics();
     handleUpdateTables();
+    fetchData();
   }, []);
 
   return (
@@ -188,31 +255,31 @@ const Home = () => {
         <div className="flex justify-between gap-16">
           <CardNotification
             icon={FaFolder}
-            quantity={5}
+            quantity={data?.EMAIL?.length || 0}
             color="#6B46C1"
             content="E-MAILS"
-            handleClick={() => handleButtonClick()}
+            handleClick={() => handleCardClick("EMAIL")}
           />
           <CardNotification
             icon={FaPhoneAlt}
-            quantity={2}
+            quantity={data?.SMS?.length || 0}
             color="#2FE5A7"
             content="TELEFONOS"
-            handleClick={() => console.log("Click")}
+            handleClick={() => handleCardClick("SMS")}
           />
           <CardNotification
             icon={FaPeopleGroup}
-            quantity={6}
+            quantity={data?.GROUPS?.length || 0}
             color="#FF69B4"
             content="GRUPOS"
-            handleClick={() => console.log("Click")}
+            handleClick={() => handleCardClick("GROUPS")}
           />
           <CardNotification
             icon={FaWindowMaximize}
-            quantity={34}
+            quantity={data?.TEMPLATES?.length || 0}
             color="#6254FF"
             content="PLANTILLAS"
-            handleClick={() => console.log("Click")}
+            handleClick={() => handleCardClick("TEMPLATES")}
           />
         </div>
 
@@ -230,6 +297,15 @@ const Home = () => {
           <ContainerTables configTables={valueTables} />
         </div>
       </section>
+
+      {/* Diálogo */}
+      {isDialogOpen && (
+        <DialogCardsHome
+          title={`Detalles de ${dialogData.type}`}
+          content={dialogData.content}
+          onClose={() => setIsDialogOpen(false)}
+        />
+      )}
     </Layout>
   );
 };

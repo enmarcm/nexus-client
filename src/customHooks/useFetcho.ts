@@ -7,7 +7,9 @@ const useFetcho = () => {
 
   const fetchWithLoading = async (params: any) => {
     try {
-      setLoading(true); // Activar el loader global
+      if(!params?.notLoading){
+        setLoading(true); // Activar el loader globa
+      }
 
       const token = localStorage.getItem("token");
       const headers = {

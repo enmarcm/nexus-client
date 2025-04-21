@@ -9,13 +9,13 @@ import ModalSms from "../components/Modal/Sms/ModalSms"; // Cambiado para SMS
 import StatusSelector from "../components/StatusSelector";
 
 const Sms = () => {
-  const [status, setStatus] = useState("fallidos");
+  const [status, setStatus] = useState("todos");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
   const [isClicked, setIsClicked] = useState(false); // Estado para manejar el efecto de clic
 
-  const COLUMNS_TABLE = ["id", "destino", "fecha y hora"]; 
+  const COLUMNS_TABLE = ["id", "destino", "estado", "fecha y hora"]; 
 
   const REQUEST_BODY = {
     url: `${API_URL}/toProcess`,

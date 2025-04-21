@@ -21,13 +21,15 @@ const StatusSelector = ({ status, setStatus }: { status: string; setStatus: (val
         return "bg-yellow-500 text-white hover:bg-yellow-600";
       case "exitosos":
         return "bg-green-500 text-white hover:bg-green-600";
+      case "todos":
+        return "bg-blue-500 text-white hover:bg-blue-600";
       default:
         return "bg-gray-300 text-gray-700 hover:bg-gray-400";
     }
   };
 
   return (
-    <div className="relative inline-block text-left 0">
+    <div className="relative inline-block text-left">
       <div>
         <button
           type="button"
@@ -39,6 +41,7 @@ const StatusSelector = ({ status, setStatus }: { status: string; setStatus: (val
           {status === "fallidos" && "Fallidos"}
           {status === "proceso" && "Proceso"}
           {status === "exitosos" && "Exitosos"}
+          {status === "todos" && "Todos"}
           <svg
             className="-mr-1 ml-2 h-5 w-5"
             xmlns="http://www.w3.org/2000/svg"
@@ -58,6 +61,12 @@ const StatusSelector = ({ status, setStatus }: { status: string; setStatus: (val
       {isOpen && (
         <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out transform scale-95 opacity-100">
           <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+            <button
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left transition-all duration-300 ease-in-out"
+              onClick={() => handleStatusChange("todos")}
+            >
+              Todos
+            </button>
             <button
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left transition-all duration-300 ease-in-out"
               onClick={() => handleStatusChange("fallidos")}

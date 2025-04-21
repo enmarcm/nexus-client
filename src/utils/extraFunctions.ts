@@ -18,7 +18,7 @@ export const mapStatus = (status: string) => {
     case "ERROR":
       return "fallidos";
     case "PROCESSING":
-      return "en proceso";
+      return "proceso";
     default:
       return "desconocido";
   }
@@ -31,7 +31,7 @@ export const filterDataEmails = (data: any, status: string) => {
   }
 
   return data
-    .filter((item: any) => mapStatus(item.status) === status)
+    .filter((item: any) => status === "todos" || mapStatus(item.status) === status) 
     .map((item: any) => {
       const fechaParsed = new Date(item.createdAt).toLocaleString();
 
@@ -55,7 +55,7 @@ export const filterDataSms = (data: any, status: string) => {
   }
 
   return data
-    .filter((item: any) => mapStatus(item.status) === status) // Filtra por estado mapeado
+    .filter((item: any) => status === "todos" || mapStatus(item.status) === status) // Maneja "todos"
     .map((item: any) => ({
       id: item.id,
       origen: item.from ? item.from : "EN PROCESO",
