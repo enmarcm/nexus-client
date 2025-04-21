@@ -6,70 +6,76 @@ import EditGroupModal from "../components/Modal/Group/EditGroupModal";
 import NewGroupModal from "../components/Modal/Group/NewGroupModal";
 import AddParticipantsModal from "../components/Modal/Group/AddParticipantsModal";
 import ConfirmDeleteModal from "../components/Modal/Group/ConfirmDeleteModal";
+import useFetcho from "../customHooks/useFetcho";
+import { API_URL } from "../data/constants";
 
 export enum GroupTypeOptions {
-  EMAIL = 1,
-  SMS = 2,
+  EMAIL = "email",
+  SMS = "sms",
 }
 
 const Groups = () => {
-  const [filterType, setFilterType] = useState<GroupTypeOptions>(GroupTypeOptions.EMAIL); // Filtro inicial por tipo (Email)
-  const [data, setData] = useState([
-    {
-      id: 1,
-      nombre: "Grupo A",
-      miembros: 10,
-      fecha_creacion: "2025-04-01",
-      tipo: GroupTypeOptions.EMAIL,
-    },
-    {
-      id: 2,
-      nombre: "Grupo B",
-      miembros: 5,
-      fecha_creacion: "2025-03-15",
-      tipo: GroupTypeOptions.SMS,
-    },
-    {
-      id: 3,
-      nombre: "Grupo C",
-      miembros: 8,
-      fecha_creacion: "2025-02-20",
-      tipo: GroupTypeOptions.EMAIL,
-    },
-  ]); // Datos iniciales
-
-  const [filteredData, setFilteredData] = useState(data); // Datos filtrados
+  const [filterType, setFilterType] = useState<GroupTypeOptions>(
+    GroupTypeOptions.EMAIL
+  );
+  const [data, setData] = useState<any[]>([]);
+  const [filteredData, setFilteredData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Estado para el modal de edición
-  const [isNewGroupModalOpen, setIsNewGroupModalOpen] = useState(false); // Estado para el modal de nuevo grupo
-  const [isAddParticipantsModalOpen, setIsAddParticipantsModalOpen] = useState(false); // Estado para el modal de agregar participantes
-  const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false); // Estado para el modal de confirmación de eliminación
-  const [selectedGroup, setSelectedGroup] = useState<any>(null); // Grupo seleccionado para editar
-  const [groupToDelete, setGroupToDelete] = useState<any>(null); // Grupo seleccionado para eliminar
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isNewGroupModalOpen, setIsNewGroupModalOpen] = useState(false);
+  const [isAddParticipantsModalOpen, setIsAddParticipantsModalOpen] =
+    useState(false);
+  const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] =
+    useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<any>(null);
+  const [groupToDelete, setGroupToDelete] = useState<any>(null);
   const [newGroupData, setNewGroupData] = useState<{
     tipo: GroupTypeOptions;
     nombre: string;
-  } | null>(null); // Almacena los datos del nuevo grupo
+  } | null>(null);
 
-  const COLUMNS_TABLE = ["id", "nombre", "miembros", "fecha_creacion", "tipo", "acciones"];
+  const COLUMNS_TABLE = ["id", "nombre", "miembros", "tipo", "acciones"];
+
+  const fetchWithLoading = useFetcho();
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Filtra los datos por tipo (Email o SMS)
-      const filtered = data.filter((item) => item.tipo === filterType);
-      setFilteredData(filtered);
+      const response = (await fetchWithLoading({
+        url: `${API_URL}/toProcess`,
+        method: "POST",
+        body: {
+          object: "GROUP",
+          method: "obtain_all_group",
+        },
+      })) as any;
+
+      const parsedData = response.map((item: any) => ({
+        id: item.id_group,
+        nombre: item.de_group,
+        miembros: item.total_saved,
+        tipo: item.de_type,
+      }));
+
+      setData(parsedData); // Establece los datos completos
+      setFilteredData(
+        parsedData.filter((item: any) => item.tipo === filterType)
+      );
     } catch (error) {
       console.error("Error fetching data:", error);
-      setFilteredData([]);
+      setData([]); // Si hay un error, establece los datos como vacíos
+      setFilteredData([]); // También establece los datos filtrados como vacíos
     } finally {
-      setLoading(false);
+      setLoading(false); // Finaliza el estado de carga
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, [filterType]); // Actualiza los datos filtrados cada vez que cambia el filtro
+    if (data.length > 0) {
+      setFilteredData(data.filter((item: any) => item.tipo === filterType));
+    }
+  }, [filterType]); // Actualiza los datos filtrados cuando cambia el filtro o los datos
 
   const handleEdit = (row: any) => {
     setSelectedGroup(row);
@@ -81,28 +87,58 @@ const Groups = () => {
     setIsConfirmDeleteModalOpen(true);
   };
 
-  const confirmDeleteGroup = () => {
+  const confirmDeleteGroup = async () => {
     if (groupToDelete) {
-      setData((prevData) => prevData.filter((group) => group.id !== groupToDelete.id));
-      setFilteredData((prevData) => prevData.filter((group) => group.id !== groupToDelete.id));
-      console.log("Grupo eliminado:", groupToDelete);
-      setGroupToDelete(null);
-      setIsConfirmDeleteModalOpen(false);
+
+      console.log("Grupo a eliminar:", groupToDelete);
+      try {
+        await fetchWithLoading({
+          url: `${API_URL}/toProcess`,
+          method: "POST",
+          body: {
+            object: "GROUP",
+            method: "delete_group",
+            params: { id_group: groupToDelete.id },
+          },
+        });
+
+        // Actualiza los datos locales después de la eliminación exitosa
+        setData((prevData) =>
+          prevData.filter((group) => group.id !== groupToDelete.id)
+        );
+        setFilteredData((prevData) =>
+          prevData.filter((group) => group.id !== groupToDelete.id)
+        );
+
+        console.log("Grupo eliminado:", groupToDelete);
+      } catch (error) {
+        console.error("Error eliminando el grupo:", error);
+      } finally {
+        setGroupToDelete(null);
+        setIsConfirmDeleteModalOpen(false);
+      }
     }
   };
 
   const handleSaveEdit = (updatedGroup: any) => {
     setData((prevData) =>
-      prevData.map((group) => (group.id === updatedGroup.id ? updatedGroup : group))
+      prevData.map((group) =>
+        group.id === updatedGroup.id ? updatedGroup : group
+      )
     );
     setFilteredData((prevData) =>
-      prevData.map((group) => (group.id === updatedGroup.id ? updatedGroup : group))
+      prevData.map((group) =>
+        group.id === updatedGroup.id ? updatedGroup : group
+      )
     );
     setIsEditModalOpen(false);
     setSelectedGroup(null);
   };
 
-  const handleNewGroupNext = (groupData: { tipo: GroupTypeOptions; nombre: string }) => {
+  const handleNewGroupNext = (groupData: {
+    tipo: GroupTypeOptions;
+    nombre: string;
+  }) => {
     setNewGroupData(groupData);
     setIsNewGroupModalOpen(false);
     setIsAddParticipantsModalOpen(true);
@@ -120,7 +156,9 @@ const Groups = () => {
           <h2 className="font-semibold text-xl">FILTRAR POR</h2>
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as unknown as GroupTypeOptions)}
+            onChange={(e) =>
+              setFilterType(e.target.value as unknown as GroupTypeOptions)
+            }
             className="border border-gray-300 rounded-md px-6 py-3 text-sm w-64 shadow-sm focus:ring-2 focus:ring-blue-300"
           >
             <option value={GroupTypeOptions.EMAIL}>Email</option>
@@ -129,7 +167,9 @@ const Groups = () => {
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
-          <h3 className="text-lg font-semibold mb-4 capitalize">{filterType}</h3>
+          <h3 className="text-lg font-semibold mb-4 capitalize">
+            {filterType === GroupTypeOptions.EMAIL ? "Email" : "SMS"}
+          </h3>
           {loading ? (
             <p className="text-gray-500">Cargando datos...</p>
           ) : filteredData.length > 0 ? (

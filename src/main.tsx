@@ -7,10 +7,13 @@ import { BrowserRouter } from "react-router";
 import { EmailDataGlobalProvider } from "./context/EmailDataGlobal";
 import { SmsDataProvider } from "./context/SmsDataGlobal";
 import { LogProvider } from "./context/LogContext";
+import { LoaderProvider } from "./context/LoaderContext";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <SessionProvider>
+      <LoaderProvider>
+
       <LogProvider>
         <EmailDataGlobalProvider>
           <SmsDataProvider>
@@ -18,6 +21,7 @@ createRoot(document.getElementById("root")!).render(
           </SmsDataProvider>
         </EmailDataGlobalProvider>
       </LogProvider>
+      </LoaderProvider>
     </SessionProvider>
   </BrowserRouter>
 );

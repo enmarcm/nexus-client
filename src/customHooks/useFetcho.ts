@@ -1,27 +1,28 @@
+import { useContext } from "react";
 import fetcho from "../utils/Fetcho";
+import LoaderContext from "../context/LoaderContext";
 
 const useFetcho = () => {
+  const { setLoading } = useContext(LoaderContext); // Obtener el método para controlar el estado de carga
+
   const fetchWithLoading = async (params: any) => {
     try {
-      // Obtener el token desde localStorage
-      const token = localStorage.getItem("token");
+      setLoading(true); // Activar el loader global
 
-      // Agregar el token al encabezado si existe
+      const token = localStorage.getItem("token");
       const headers = {
         ...params.headers,
         ...(token ? { Authorization: `${token}` } : {}),
       };
 
-      // Crear una promesa que se rechaza después de 10 segundos
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
           reject(new Error("Operation timed out after 10 seconds"));
         }, 6000);
       });
 
-      // Competir la promesa de fetcho con la promesa de tiempo de espera
       const data = await Promise.race([
-        fetcho({ ...params, headers }), // Pasar los encabezados actualizados
+        fetcho({ ...params, headers }),
         timeoutPromise,
       ]);
 
@@ -31,6 +32,8 @@ const useFetcho = () => {
         `An error occurred while fetching, the url was ${params.url} and the error was ${error.message}`
       );
       return false;
+    } finally {
+      setLoading(false); // Desactivar el loader global
     }
   };
 
