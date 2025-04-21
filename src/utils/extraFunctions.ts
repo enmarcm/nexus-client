@@ -33,7 +33,6 @@ export const filterDataEmails = (data: any, status: string) => {
   return data
     .filter((item: any) => status === "todos" || mapStatus(item.status) === status) 
     .map((item: any) => {
-      const fechaParsed = new Date(item.createdAt).toLocaleString();
 
       const newObject = {
         id: item.id,
@@ -41,7 +40,7 @@ export const filterDataEmails = (data: any, status: string) => {
         destino: item.content.to,
         asunto: item.content.subject,
         estado: mapStatus(item.status),
-        "fecha y hora": fechaParsed,
+        "fecha y hora": item.createdAt,
       };
 
       return newObject;
@@ -62,7 +61,7 @@ export const filterDataSms = (data: any, status: string) => {
       destino: item.content.to,
       mensaje: item.content.body, // Cambiado a "mensaje" para SMS
       estado: mapStatus(item.status),
-      "fecha y hora": new Date(item.createdAt).toLocaleString(),
+      "fecha y hora": item.createdAt,
     }));
 };
 

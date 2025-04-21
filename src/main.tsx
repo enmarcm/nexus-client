@@ -13,14 +13,13 @@ createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <SessionProvider>
       <LoaderProvider>
-
-      <LogProvider>
-        <EmailDataGlobalProvider>
-          <SmsDataProvider>
-            <App />
-          </SmsDataProvider>
-        </EmailDataGlobalProvider>
-      </LogProvider>
+        <LogProvider>
+          <EmailDataGlobalProvider>
+            <SmsDataProvider>
+                <App />
+            </SmsDataProvider>
+          </EmailDataGlobalProvider>
+        </LogProvider>
       </LoaderProvider>
     </SessionProvider>
   </BrowserRouter>

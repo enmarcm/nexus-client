@@ -145,10 +145,10 @@ const Groups = () => {
     setIsNewGroupModalOpen(false);
     setIsAddParticipantsModalOpen(true);
   };
-
-  const handleCreateGroup = (participants: string[]) => {
-    console.log("Grupo creado:", { ...newGroupData, participants });
+  const handleCreateGroup = () => {
     setIsAddParticipantsModalOpen(false);
+  
+    fetchData();
   };
 
   return (

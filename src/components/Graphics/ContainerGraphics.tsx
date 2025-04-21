@@ -31,6 +31,7 @@ const ContainerGraphics: React.FC<ContainerGraphicsProps> = ({
   const [transitionClass, setTransitionClass] = useState<string>("");
   const [showTitle, setShowTitle] = useState<boolean>(true);
 
+
   const handleTabClick = (index: number) => {
     if (index === selectedTab) return; 
     setShowTitle(false);

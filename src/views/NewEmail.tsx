@@ -32,6 +32,7 @@ const NewEmail = () => {
   const [recipientData, setRecipientData] = useState<RecipientData[]>([]); // Datos procesados del archivo
   const [fileName, setFileName] = useState<string | null>(null); // Nombre del archivo cargado
   const [attachments, setAttachments] = useState<File[]>([]); // Archivos adjuntos
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // Estado para mostrar el modal de éxito
   const navigate = useNavigate(); // Para redirigir después de la animación
 
   const sendEmail = async (email: string, personalizedContent: string) => {
@@ -165,11 +166,20 @@ const NewEmail = () => {
         }
       }
 
-      // Inicia la animación y redirige después
-      setIsSending(true);
+      // Muestra el modal de éxito
+      setShowSuccessModal(true);
+
+      // Espera 1.5 segundos para mostrar el mensaje
       setTimeout(() => {
-        navigate("/emails");
-      }, 2500); // Duración de la animación (2.5s)
+        setShowSuccessModal(false);
+
+        // Inicia la animación y redirige después
+        setIsSending(true);
+        setTimeout(() => {
+          setIsSending(false);
+          navigate("/emails");
+        }, 2500); // Duración de la animación (2.5s)
+      }, 1500); // Duración del modal (1.5s)
     } catch (error: any) {
       console.error("Error al enviar los correos:", error);
       setResponseMessage(error.message || "Error al enviar los correos.");
@@ -307,6 +317,20 @@ const NewEmail = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de éxito */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] text-center">
+            <h2 className="text-lg font-semibold text-green-500 mb-4">
+              ¡Correos enviados a la cola!
+            </h2>
+            <p className="text-gray-700 text-sm">
+              Los correos han sido enviados a la cola y están siendo procesados.
+            </p>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
