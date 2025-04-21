@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaFileExcel, FaFileAlt } from "react-icons/fa";
+import * as XLSX from "xlsx";
 
 interface StepContentProps {
   step: string;
@@ -12,7 +13,7 @@ interface StepContentProps {
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   searchQuery: string;
   onSearchQueryChange: (value: string) => void;
-  filteredGroups: { id: string; name: string; members: number }[];
+  filteredGroups: { id: string; name: string; members: Array<string> }[];
   selectedGroup: string | null;
   onGroupSelect: (id: string) => void;
   onBack: () => void;
@@ -38,6 +39,8 @@ const StepContent: React.FC<StepContentProps> = ({
   onConfirm,
   confirmDisabled = false,
 }) => {
+  const [invalidPhoneNumbers, setInvalidPhoneNumbers] = useState<string[]>([]);
+
   const handlePhoneNumberChange = (index: number, value: string) => {
     const updatedPhoneNumbers = [...phoneNumbers];
     updatedPhoneNumbers[index] = value;
@@ -53,6 +56,69 @@ const StepContent: React.FC<StepContentProps> = ({
   const handleRemovePhoneNumber = (index: number) => {
     const updatedPhoneNumbers = phoneNumbers.filter((_, i) => i !== index);
     onPhoneNumberChange(updatedPhoneNumbers);
+  };
+
+  const handleFileRead = async (file: File) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const data = e.target?.result;
+      if (file.type === "application/json") {
+        try {
+          const parsedData = JSON.parse(data as string);
+          if (Array.isArray(parsedData)) {
+            processPhoneNumbers(parsedData);
+          } else {
+            alert("El archivo JSON no tiene el formato correcto.");
+          }
+        } catch (error) {
+          alert("Error al leer el archivo JSON.");
+        }
+      } else if (
+        file.type ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ) {
+        const workbook = XLSX.read(data, { type: "binary" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const parsedData = XLSX.utils.sheet_to_json(sheet, {
+          header: 1,
+        }) as string[][];
+        const phoneNumbersFromXlsx = parsedData
+          .map((row) => row[0])
+          .filter((phone) => typeof phone === "string");
+        processPhoneNumbers(phoneNumbersFromXlsx);
+      }
+    };
+
+    if (file.type === "application/json") {
+      reader.readAsText(file);
+    } else if (
+      file.type ===
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      reader.readAsBinaryString(file);
+    }
+  };
+
+  const processPhoneNumbers = (numbers: string[]) => {
+    const validNumbers = numbers.filter((phone) => validatePhoneNumber(phone));
+    const invalidNumbers = numbers.filter(
+      (phone) => !validatePhoneNumber(phone)
+    );
+    onPhoneNumberChange(validNumbers);
+    setInvalidPhoneNumbers(invalidNumbers);
+  };
+
+  const handleConfirm = () => {
+    if (step === "manual") {
+      // Eliminar SIEMPRE el último elemento del arreglo
+      const updatedPhoneNumbers = phoneNumbers.slice(0, -1);
+      onPhoneNumberChange(updatedPhoneNumbers);
+    }
+
+    // Confirmar la acción
+    onConfirm();
   };
 
   return (
@@ -115,7 +181,10 @@ const StepContent: React.FC<StepContentProps> = ({
                 accept=".json, .xlsx"
                 className="hidden"
                 id="file-upload"
-                onChange={onFileUpload}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileRead(file);
+                }}
               />
               <label
                 htmlFor="file-upload"
@@ -134,6 +203,32 @@ const StepContent: React.FC<StepContentProps> = ({
                 </div>
               )}
             </div>
+
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold">Números válidos:</h3>
+              <ul className="list-disc list-inside">
+                {phoneNumbers.map((phone, index) => (
+                  <li key={index} className="text-green-600">
+                    {phone}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {invalidPhoneNumbers.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-red-600">
+                  Números inválidos:
+                </h3>
+                <ul className="list-disc list-inside">
+                  {invalidPhoneNumbers.map((phone, index) => (
+                    <li key={index} className="text-red-600">
+                      {phone}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </>
         )}
 
@@ -150,16 +245,32 @@ const StepContent: React.FC<StepContentProps> = ({
               value={searchQuery}
               onChange={(e) => onSearchQueryChange(e.target.value)}
             />
-            <ul className="w-full border border-gray-300 rounded p-4">
+            <ul className="w-full border border-gray-300 rounded p-4 relative">
               {filteredGroups.map((group) => (
                 <li
                   key={group.id}
-                  className={`p-2 hover:bg-gray-100 cursor-pointer ${
+                  className={`relative group p-2 hover:bg-gray-100 cursor-pointer ${
                     selectedGroup === group.id ? "bg-purple-100" : ""
                   }`}
                   onClick={() => onGroupSelect(group.id)}
                 >
-                  {group.name} - {group.members} destinatarios
+                  {group.name} - {group.members.length} destinatarios
+                  {/* Tooltip para mostrar los números de teléfono */}
+                  <div
+                    className="absolute top-0 left-full ml-2 w-64 p-2 bg-white border border-gray-300 rounded shadow-lg text-sm text-gray-700 hidden group-hover:block z-10"
+                    style={{
+                      maxHeight: "200px",
+                      overflowY: "auto",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <h3 className="font-semibold mb-2">Números del grupo:</h3>
+                    <ul className="list-disc list-inside">
+                      {group.members.map((phone, index) => (
+                        <li key={index}>{phone}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -180,7 +291,7 @@ const StepContent: React.FC<StepContentProps> = ({
               ? "bg-gray-300 cursor-not-allowed"
               : "bg-purple-500 hover:bg-purple-600"
           }`}
-          onClick={onConfirm}
+          onClick={handleConfirm}
           disabled={confirmDisabled}
         >
           Confirmar

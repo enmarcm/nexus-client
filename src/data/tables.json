@@ -7,6 +7,7 @@
       "CORREO ORIGEN",
       "CORREO DESTINO",
       "ASUNTO",
+      "ESTADO",
       "FECHA Y HORA"
     ],
     "data": [
@@ -29,12 +30,12 @@
   {
     "title": "Mensajes despachados",
     "button": "Mensajes",
-    "columns": ["ID", "TELEFONO ORIGEN", "TELEFONO DESTINO", "FECHA Y HORA"],
+    "columns": ["ID","TELEFONO DESTINO", "ESTADO", "FECHA Y HORA"],
     "data": [
       {
         "ID": 1,
-        "TELEFONO ORIGEN": "0414-1234567",
         "TELEFONO DESTINO": "0414-7654321",
+        "ESTADO": "Enviado",
         "FECHA Y HORA": "2023-10-11 12:00:00"
       }
     ]

@@ -5,7 +5,7 @@ import useFetcho from "../customHooks/useFetcho";
 import { API_URL } from "../data/constants";
 import { filterDataSms } from "../utils/extraFunctions"; // Cambiado para SMS
 import { FaPlus } from "react-icons/fa"; // Importamos el ícono de "más"
-import ModalSms from "../components/Modal/Sms/ModalSms";
+import ModalSms from "../components/Modal/Sms/ModalSms"; // Cambiado para SMS
 import StatusSelector from "../components/StatusSelector";
 
 const Sms = () => {
@@ -15,21 +15,22 @@ const Sms = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
   const [isClicked, setIsClicked] = useState(false); // Estado para manejar el efecto de clic
 
-  const COLUMNS_TABLE = ["id", "origen", "destino", "mensaje", "fecha", "hora"]; // Cambiado para SMS
+  const COLUMNS_TABLE = ["id", "destino", "fecha y hora"]; 
 
   const REQUEST_BODY = {
     url: `${API_URL}/toProcess`,
     method: "POST",
     body: {
-      object: "sms", // Cambiado para SMS
-      method: "getmessages", // Cambiado para SMS
+      object: "REPORTS", 
+      method: "obtain_sms_sends", 
     },
   };
+
+  const fetchWithLoading = useFetcho();
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const fetchWithLoading = useFetcho();
       const params = REQUEST_BODY;
       const response = (await fetchWithLoading(params)) as any;
       const filteredData = filterDataSms(response, status) as any; // Cambiado para SMS
@@ -60,7 +61,7 @@ const Sms = () => {
         {/* Parte de filtrar */}
         <div className="flex gap-16 items-center w-full mb-8">
           <h2 className="font-semibold text-xl">FILTRAR POR</h2>
-          <StatusSelector status={status} setStatus={setStatus}/>
+          <StatusSelector status={status} setStatus={setStatus} />
         </div>
 
         {/* Tabla */}

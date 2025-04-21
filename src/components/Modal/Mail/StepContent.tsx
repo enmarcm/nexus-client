@@ -10,10 +10,10 @@ interface StepContentProps {
   dragging: boolean;
   uploadedFile: File | null;
   onFileDrop: (e: React.DragEvent<HTMLDivElement>) => void;
-  onFileUpload: (file: File) => void;
+  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   searchQuery: string;
   onSearchQueryChange: (value: string) => void;
-  filteredGroups: { id: string; name: string; members: number }[];
+  filteredGroups: { id: string; name: string; members: Array<string> }[];
   selectedGroup: string | null;
   onGroupSelect: (id: string) => void;
   onBack: () => void;
@@ -40,7 +40,6 @@ const StepContent: React.FC<StepContentProps> = ({
   confirmDisabled = false,
 }) => {
   const [invalidEmails, setInvalidEmails] = useState<string[]>([]);
-  const [localUploadedFile, setLocalUploadedFile] = useState<File | null>(uploadedFile);
 
   const handleEmailChange = (index: number, value: string) => {
     const updatedEmails = [...emails];
@@ -60,96 +59,58 @@ const StepContent: React.FC<StepContentProps> = ({
   };
 
   const handleFileRead = async (file: File) => {
-    setLocalUploadedFile(file);
-    onFileUpload(file);
-
     const reader = new FileReader();
 
     reader.onload = (e) => {
       const data = e.target?.result;
-      console.log("Archivo leído:", data); // Depuración: Verificar contenido del archivo
-
       if (file.type === "application/json") {
         try {
           const parsedData = JSON.parse(data as string);
-          console.log("Datos JSON parseados:", parsedData);
-
           if (Array.isArray(parsedData)) {
-            const extractedEmails = parsedData
-              .map((item: any) => item)
-              .filter((email: string) => typeof email === "string");
-            console.log("Correos extraídos del JSON:", extractedEmails); // Depuración
-            processEmails(extractedEmails);
+            processEmails(parsedData);
           } else {
             alert("El archivo JSON no tiene el formato correcto.");
           }
         } catch (error) {
-          console.error("Error al leer el archivo JSON:", error); // Depuración
           alert("Error al leer el archivo JSON.");
         }
-      } else if (
-        file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      ) {
-        try {
-          const workbook = XLSX.read(data, { type: "binary" });
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          const parsedData = XLSX.utils.sheet_to_json(sheet, {
-            header: 1,
-          }) as string[][];
-          console.log("Datos Excel parseados:", parsedData); // Depuración
-
-          const extractedEmails = parsedData
-            .slice(1) // Ignorar la primera fila (encabezado)
-            .map((row) => row[0])
-            .filter((email) => typeof email === "string");
-          console.log("Correos extraídos del Excel:", extractedEmails); // Depuración
-          processEmails(extractedEmails);
-        } catch (error) {
-          console.error("Error al leer el archivo Excel:", error); // Depuración
-          alert("Error al leer el archivo Excel.");
-        }
+      } else if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+        const workbook = XLSX.read(data, { type: "binary" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as string[][];
+        const emailsFromXlsx = parsedData.map((row) => row[0]).filter((email) => typeof email === "string");
+        processEmails(emailsFromXlsx);
       }
     };
 
     if (file.type === "application/json") {
       reader.readAsText(file);
-    } else if (
-      file.type ===
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    ) {
+    } else if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
       reader.readAsBinaryString(file);
     }
   };
 
-  const processEmails = (emailsFromFile: string[]) => {
-    console.log("Procesando correos:", emailsFromFile); // Depuración
-
-    const validEmails = emailsFromFile.filter((email) => validateEmail(email));
-    const invalidEmails = emailsFromFile.filter((email) => !validateEmail(email));
-
-    console.log("Correos válidos:", validEmails); // Depuración
-    console.log("Correos inválidos:", invalidEmails); // Depuración
-
-    // Actualizar los correos válidos e inválidos
-    onEmailChange([...emails, ...validEmails]); // Agregar los correos válidos al estado global
-    setInvalidEmails(invalidEmails); // Actualizar los correos inválidos en el estado local
+  const processEmails = (emails: string[]) => {
+    const validEmails = emails.filter((email) => validateEmail(email));
+    const invalidEmails = emails.filter((email) => !validateEmail(email));
+    onEmailChange(validEmails);
+    setInvalidEmails(invalidEmails);
   };
 
   const handleConfirm = () => {
     if (step === "manual") {
-      const updatedEmails = emails.filter((email, index) => {
-        return index !== emails.length - 1 || email.trim() !== "";
-      });
+      // Eliminar SIEMPRE el último elemento del arreglo
+      const updatedEmails = emails.slice(0, -1);
       onEmailChange(updatedEmails);
     }
+  
+    // Confirmar la acción
     onConfirm();
   };
-
   return (
     <div className="flex flex-col justify-between h-full">
-      <div className="flex-1 overflow-y-auto">
+      <div>
         {step === "manual" && (
           <>
             <h2 className="text-xl font-semibold mb-4">Ingresar manualmente</h2>
@@ -216,48 +177,32 @@ const StepContent: React.FC<StepContentProps> = ({
               >
                 Seleccionar archivo
               </label>
-
-              {localUploadedFile ? (
-                <div className="mt-4 flex flex-col items-center gap-2">
-                  <div className="flex items-center gap-4">
-                    {localUploadedFile.name.endsWith(".xlsx") ? (
-                      <FaFileExcel className="text-green-500" size={24} />
-                    ) : (
-                      <FaFileAlt className="text-blue-500" size={24} />
-                    )}
-                    <span className="text-gray-700 font-medium">
-                      {localUploadedFile.name}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Tamaño: {(localUploadedFile.size / 1024).toFixed(2)} KB
-                  </p>
+              {uploadedFile && (
+                <div className="mt-4 flex items-center gap-4">
+                  {uploadedFile.name.endsWith(".xlsx") ? (
+                    <FaFileExcel className="text-green-500" size={24} />
+                  ) : (
+                    <FaFileAlt className="text-blue-500" size={24} />
+                  )}
+                  <span>{uploadedFile.name}</span>
                 </div>
-              ) : (
-                <p className="text-sm text-gray-500 mt-4">
-                  No se ha cargado ningún archivo.
-                </p>
               )}
             </div>
 
             <div className="mt-4">
               <h3 className="text-lg font-semibold">Correos válidos:</h3>
-              <div className="max-h-40 overflow-y-auto">
-                <ul className="list-disc list-inside">
-                  {emails.map((email, index) => (
-                    <li key={index} className="text-green-600">
-                      {email}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="list-disc list-inside">
+                {emails.map((email, index) => (
+                  <li key={index} className="text-green-600">
+                    {email}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {invalidEmails.length > 0 && (
               <div className="mt-4">
-                <h3 className="text-lg font-semibold text-red-600">
-                  Correos inválidos:
-                </h3>
+                <h3 className="text-lg font-semibold text-red-600">Correos inválidos:</h3>
                 <ul className="list-disc list-inside">
                   {invalidEmails.map((email, index) => (
                     <li key={index} className="text-red-600">
@@ -270,37 +215,50 @@ const StepContent: React.FC<StepContentProps> = ({
           </>
         )}
 
-        {step === "grupo" && (
-          <>
-            <h2 className="text-xl font-semibold mb-4">Seleccionar Grupo</h2>
-            <p className="text-gray-600 mb-4">
-              Busca y selecciona un grupo de destinatarios:
-            </p>
-            <input
-              type="text"
-              placeholder="Buscar grupo"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              value={searchQuery}
-              onChange={(e) => onSearchQueryChange(e.target.value)}
-            />
-            <ul className="w-full border border-gray-300 rounded p-4">
-              {filteredGroups.map((group) => (
-                <li
-                  key={group.id}
-                  className={`p-2 hover:bg-gray-100 cursor-pointer ${
-                    selectedGroup === group.id ? "bg-purple-100" : ""
-                  }`}
-                  onClick={() => onGroupSelect(group.id)}
-                >
-                  {group.name} - {group.members} destinatarios
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+{step === "grupo" && (
+  <>
+    <h2 className="text-xl font-semibold mb-4">Seleccionar Grupo</h2>
+    <p className="text-gray-600 mb-4">
+      Busca y selecciona un grupo de destinatarios:
+    </p>
+    <input
+  type="text"
+  placeholder="Buscar grupo"
+  className="w-full p-2 border border-gray-300 rounded mb-4"
+  value={searchQuery}
+  onChange={(e) => onSearchQueryChange(e.target.value)}
+/>
+<ul className="w-full border border-gray-300 rounded p-4">
+  {filteredGroups.map((group) => (
+    <li
+      key={group.id}
+      className={`relative group p-2 hover:bg-gray-100 cursor-pointer ${
+        selectedGroup === group.id ? "bg-purple-100" : ""
+      }`}
+      onClick={() => onGroupSelect(group.id)}
+    >
+      {group.name} - {group.members.length} destinatarios
+
+      {/* Tooltip para mostrar los correos */}
+      <div
+        className="absolute top-1/2 transform -translate-y-1/2 left-full ml-4 w-64 p-2 bg-white border border-gray-300 rounded shadow-lg text-sm text-gray-700 hidden group-hover:block z-10"
+        style={{ maxHeight: "200px", overflowY: "auto" }} // Scroll si hay muchos correos
+      >
+        <h3 className="font-semibold mb-2">Correos del grupo:</h3>
+        <ul className="list-disc list-inside">
+          {group.members.map((email, index) => (
+            <li key={index}>{email}</li>
+          ))}
+        </ul>
+      </div>
+    </li>
+  ))}
+</ul>
+  </>
+)}
       </div>
 
-      <div className="flex justify-between mt-4 border-t pt-4">
+      <div className="flex justify-between mt-4">
         <button
           className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
           onClick={onBack}
