@@ -10,8 +10,8 @@ import useFetcho from "../customHooks/useFetcho";
 import { API_URL } from "../data/constants";
 
 export enum GroupTypeOptions {
-  EMAIL = "email",
-  SMS = "sms",
+  EMAIL = 1,
+  SMS = 2,
 }
 
 const Groups = () => {
@@ -54,13 +54,15 @@ const Groups = () => {
         id: item.id_group,
         nombre: item.de_group,
         miembros: item.total_saved,
-        tipo: item.de_type,
+        tipo: item.de_type === "email" ? GroupTypeOptions.EMAIL : GroupTypeOptions.SMS,
       }));
-
+      console.log("Datos obtenidos:", parsedData);
       setData(parsedData); // Establece los datos completos
+      console.log("tipo de filtrado:", filterType);
       setFilteredData(
-        parsedData.filter((item: any) => item.tipo === filterType)
+        parsedData.filter((item: any) => item.tipo == filterType)
       );
+      console.log("Datos filtrados:", filteredData);;
     } catch (error) {
       console.error("Error fetching data:", error);
       setData([]); // Si hay un error, establece los datos como vacíos
@@ -177,6 +179,7 @@ const Groups = () => {
               columns={COLUMNS_TABLE}
               data={filteredData.map((item) => ({
                 ...item,
+                tipo: item.tipo === GroupTypeOptions.EMAIL ? "Email" : "SMS",
                 acciones: (
                   <div className="flex gap-2">
                     <button
