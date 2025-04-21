@@ -15,23 +15,24 @@ const Mail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
   const [isClicked, setIsClicked] = useState(false); // Estado para manejar el efecto de clic
 
-  const COLUMNS_TABLE = ["id", "origen", "destino", "asunto", "fecha", "hora"];
+  const COLUMNS_TABLE = ["id", "origen", "destino", "asunto", "estado" ,"fecha y hora"];
 
   const REQUEST_BODY = {
     url: `${API_URL}/toProcess`,
     method: "POST",
     body: {
-      object: "email",
-      method: "getmails",
+      object: "REPORTS",
+      method: "obtain_email_sends",
     },
   };
+  const fetchWithLoading = useFetcho();
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const fetchWithLoading = useFetcho();
       const params = REQUEST_BODY;
       const response = (await fetchWithLoading(params)) as any;
+
       const filteredData = filterDataEmails(response, status) as any;
       setData(filteredData);
     } catch (error) {

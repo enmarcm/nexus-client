@@ -11,6 +11,19 @@ export const getStatusColor = (status: string) => {
   }
 };
 
+export const mapStatus = (status: string) => {
+  switch (status) {
+    case "COMPLETED":
+      return "exitosos";
+    case "ERROR":
+      return "fallidos";
+    case "PROCESSING":
+      return "en proceso";
+    default:
+      return "desconocido";
+  }
+};
+
 export const filterDataEmails = (data: any, status: string) => {
   if (!Array.isArray(data)) {
     console.error("Expected an array, but got:", data);
@@ -18,15 +31,21 @@ export const filterDataEmails = (data: any, status: string) => {
   }
 
   return data
-    .filter((item: any) => item.estado === status) // Filtra por estado
-    .map((item: any) => ({
-      id: item.id,
-      origen: item.origen,
-      destino: item.destino,
-      asunto: item.asunto,
-      fecha: item.fecha,
-      hora: item.hora,
-    }));
+    .filter((item: any) => mapStatus(item.status) === status)
+    .map((item: any) => {
+      const fechaParsed = new Date(item.createdAt).toLocaleString();
+
+      const newObject = {
+        id: item.id,
+        origen: item.from ? item.from : "EN PROCESO",
+        destino: item.content.to,
+        asunto: item.content.subject,
+        estado: mapStatus(item.status),
+        "fecha y hora": fechaParsed,
+      };
+
+      return newObject;
+    });
 };
 
 export const filterDataSms = (data: any, status: string) => {
@@ -36,14 +55,14 @@ export const filterDataSms = (data: any, status: string) => {
   }
 
   return data
-    .filter((item: any) => item.estado === status) // Filtra por estado
+    .filter((item: any) => mapStatus(item.status) === status) // Filtra por estado mapeado
     .map((item: any) => ({
       id: item.id,
-      origen: item.origen,
-      destino: item.destino,
-      mensaje: item.mensaje, // Cambiado a "mensaje" para SMS
-      fecha: item.fecha,
-      hora: item.hora,
+      origen: item.from ? item.from : "EN PROCESO",
+      destino: item.content.to,
+      mensaje: item.content.body, // Cambiado a "mensaje" para SMS
+      estado: mapStatus(item.status),
+      "fecha y hora": new Date(item.createdAt).toLocaleString(),
     }));
 };
 
@@ -54,7 +73,7 @@ export const filterDataGroups = (data: any, status: string) => {
   }
 
   return data
-    .filter((item: any) => item.estado === status) // Filtra por estado
+    .filter((item: any) => mapStatus(item.estado) === status) // Filtra por estado mapeado
     .map((item: any) => ({
       id: item.id,
       nombre: item.nombre,

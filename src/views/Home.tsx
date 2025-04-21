@@ -6,7 +6,7 @@ import dataGraphics from "../data/graphics.json";
 import { FaPeopleGroup } from "react-icons/fa6";
 import configTables from "../data/tables.json";
 import ContainerTables from "../components/ContainerTables";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import useFetcho from "../customHooks/useFetcho";
 import { url } from "inspector";
@@ -17,15 +17,11 @@ const Home = () => {
   const fetchWithLoading = useFetcho();
 
   const [valuesGraphics, setValuesGraphics] = useState({
-    // emailDay: dataGraphics.firstHomeGraphic[0],
-    // smsDay: dataGraphics.firstHomeGraphic[1],
-    // emailSuccess: dataGraphics.secondHomeGraphic[0],
-    // smsSuccess: dataGraphics.secondHomeGraphic[1],
-
-
     firstGraphics: dataGraphics.firstHomeGraphic,
     secondGraphics: dataGraphics.secondHomeGraphic,
   });
+
+  const [valueTables, setValueTables] = useState(configTables);
 
   const handleButtonClick = () => {
     console.log("Clickki");
@@ -53,31 +49,89 @@ const Home = () => {
       returnDataFetchReports("get_emails_sent_by_day")
     );
 
-    return data
+    return data;
   };
   const handleSMSPerDay = async () => {
     const data = await fetchWithLoading(
       returnDataFetchReports("get_sms_sent_by_day")
     );
 
-    return data
+    return data;
   };
   const handleEmailSuccess = async () => {
     const data = await fetchWithLoading(
       returnDataFetchReports("get_email_success_and_failed")
     );
 
-    return data
+    return data;
   };
   const handleSMSSuccess = async () => {
     const data = await fetchWithLoading(
       returnDataFetchReports("get_sms_success_and_failed")
     );
 
-    return data
+    return data;
   };
 
-  const handleUpdateGraphics = async () =>{
+  //Ahora los de las tablas
+  const handleEmailTable = async () => {
+    const data = await fetchWithLoading(
+      returnDataFetchReports("obtain_email_sends")
+    );
+
+    return data;
+  };
+
+  const handleSMSTable = async () => {
+    const data = await fetchWithLoading(
+      returnDataFetchReports("obtain_sms_sends")
+    );
+
+    return data;
+  };
+
+  const handleUpdateTables = async () => {
+    const dataEmail = await handleEmailTable() as any;
+    const dataSMS = await handleSMSTable() as any;
+
+
+    const dataMappedEmail = dataEmail.map((item: any) => {
+      const newObject = {
+        "ID": item.id,
+        "CORREO ORIGEN": item.from ? item.from : "EN PROCESO", 
+        "CORREO DESTINO":item.content.to, 
+        "ASUNTO": item.content.subject, 
+        "FECHA Y HORA": item.createdAt,
+        "ESTADO": item.status,
+      }
+
+      return newObject;
+    })
+
+    const dataMappedSMS = dataSMS.map((item: any) => {
+      const newObject = {
+        "ID": item.id,
+        "NUMERO DESTINO":item.content.to, 
+        "FECHA Y HORA": item.createdAt,
+        "ESTADO": item.status,
+      }
+
+      return newObject;
+    })
+
+    console.log(dataMappedEmail, dataMappedSMS);
+
+   
+    const newObject = [
+      {...configTables[0], data: dataMappedEmail },
+      {...configTables[1], data: dataMappedSMS },
+    ]
+
+    setValueTables(newObject as any);
+
+  }
+
+  const handleUpdateGraphics = async () => {
     const emailPerDay = await handleEmailPerDay();
     const smsPerDay = await handleSMSPerDay();
     const emailSuccess = await handleEmailSuccess();
@@ -85,22 +139,47 @@ const Home = () => {
 
     const newObject = {
       firstGraphics: [
-        { ...valuesGraphics.firstGraphics[0], configElements: { ...valuesGraphics.firstGraphics[0].configElements, data: emailPerDay } },
-        { ...valuesGraphics.firstGraphics[1], configElements: { ...valuesGraphics.firstGraphics[1].configElements, data: smsPerDay } },
+        {
+          ...valuesGraphics.firstGraphics[0],
+          configElements: {
+            ...valuesGraphics.firstGraphics[0].configElements,
+            data: emailPerDay,
+          },
+        },
+        {
+          ...valuesGraphics.firstGraphics[1],
+          configElements: {
+            ...valuesGraphics.firstGraphics[1].configElements,
+            data: smsPerDay,
+          },
+        },
       ],
       secondGraphics: [
-        { ...valuesGraphics.secondGraphics[0], configElements: { ...valuesGraphics.secondGraphics[0].configElements, data: emailSuccess } },
-        { ...valuesGraphics.secondGraphics[1], configElements: { ...valuesGraphics.secondGraphics[1].configElements, data: smsSuccess } },
+        {
+          ...valuesGraphics.secondGraphics[0],
+          configElements: {
+            ...valuesGraphics.secondGraphics[0].configElements,
+            data: emailSuccess,
+          },
+        },
+        {
+          ...valuesGraphics.secondGraphics[1],
+          configElements: {
+            ...valuesGraphics.secondGraphics[1].configElements,
+            data: smsSuccess,
+          },
+        },
       ],
     };
 
-    console.log(newObject)
+    console.log(newObject);
     setValuesGraphics(newObject as any);
-  }
+  };
 
   useEffect(() => {
     //Aqui vamos a obtener la informacion de los graficos apenas empecemos
     handleUpdateGraphics();
+    handleUpdateTables();
   }, []);
 
   return (
@@ -143,14 +222,12 @@ const Home = () => {
           </div>
 
           <div className="w-5/12 h-full min-h-full">
-            <ContainerGraphics
-              configGraphics={valuesGraphics.secondGraphics}
-            />
+            <ContainerGraphics configGraphics={valuesGraphics.secondGraphics} />
           </div>
         </div>
 
         <div className="w-full overflow-x-hidden">
-          <ContainerTables configTables={configTables} />
+          <ContainerTables configTables={valueTables} />
         </div>
       </section>
     </Layout>

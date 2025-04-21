@@ -1,29 +1,79 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Para redirigir
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaTimes } from "react-icons/fa";
 import { useEmailDataGlobal } from "../../../context/EmailDataGlobal";
 import CardOptions from "../CardOptions";
 import StepContent from "./StepContent";
 import "../../css/ModalMail.css";
+import useFetcho from "../../../customHooks/useFetcho";
+import { API_URL } from "../../../data/constants";
 
 const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const { dispatch } = useEmailDataGlobal(); // Usar el contexto global
-  const navigate = useNavigate(); // Hook para redirigir
+  const { dispatch } = useEmailDataGlobal();
+  const navigate = useNavigate();
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [step, setStep] = useState(1);
-  const [isClosing, setIsClosing] = useState(false); // Estado para manejar la animación de cierre
-  const [emails, setEmails] = useState<string[]>([]);
+  const [isClosing, setIsClosing] = useState(false);
+  const [emails, setEmails] = useState<string[]>([""]);
   const [dragging, setDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [groups, setGroups] = useState<
+    { id: string; name: string; members: string[] }[]
+  >([]);
 
-  // Definir los grupos
-  const groups = [
-    { id: "1", name: "Grupo 1", members: 10 },
-    { id: "2", name: "Grupo 2", members: 15 },
-    { id: "3", name: "Grupo 3", members: 8 },
-  ];
+  const fetchWithLoading = useFetcho();
+
+  const fetchGroups = async () => {
+    try {
+      const response = (await fetchWithLoading({
+        url: `${API_URL}/toProcess`,
+        method: "POST",
+        body: {
+          object: "GROUP",
+          method: "obtain_all_group",
+        },
+      })) as any;
+  
+      // Usar Promise.all para obtener los miembros de todos los grupos
+      const mappedResponse = await Promise.all(
+        response.map(async (item: any) => {
+          const membersResponse = (await fetchWithLoading({
+            url: `${API_URL}/toProcess`,
+            method: "POST",
+            body: {
+              object: "GROUP",
+              method: "obtain_member_group",
+              params:{
+                id_group: item.id_group,
+              }
+            },
+          })) as any;
+  
+          const members = membersResponse.map((member: any) => member.content);
+  
+          return {
+            id: item.id_group,
+            name: item.de_group,
+            total: item.total_saved,
+            type: item.de_type,
+            members,
+          };
+        })
+      );
+  
+      console.log(mappedResponse);
+  
+      setGroups(mappedResponse);
+    } catch (error) {
+      console.error("Error al obtener los grupos:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
 
   const handleNextStep = () => {
     if (selectedCard) setStep(2);
@@ -35,10 +85,10 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleClose = () => {
-    setIsClosing(true); // Activar animación de cierre
+    setIsClosing(true);
     setTimeout(() => {
-      onClose(); // Cerrar el modal después de la animación
-    }, 500); // Duración de la animación de cierre
+      onClose();
+    }, 500);
   };
 
   const handleConfirm = () => {
@@ -66,11 +116,11 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 ${
         isClosing ? "modal-close-animation" : "modal-open-animation"
       }`}
-      onClick={handleClose} // Detecta clics fuera del modal
+      onClick={handleClose}
     >
       <div
         className="bg-white rounded-lg shadow-lg p-6 w-[55rem] h-[28rem] flex flex-col gap-4 relative"
-        onClick={(e) => e.stopPropagation()} // Evita que los clics dentro del modal cierren el modal
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
@@ -132,8 +182,9 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               const file = e.dataTransfer.files[0];
               if (file) setUploadedFile(file);
             }}
-            onFileUpload={(file) => {
-              if (file) setUploadedFile(file); // Ahora recibe directamente un archivo
+            onFileUpload={(e) => {
+              const file = e.target.files?.[0];
+              if (file) setUploadedFile(file);
             }}
             searchQuery={searchQuery}
             onSearchQueryChange={setSearchQuery}
@@ -141,7 +192,13 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               group.name.toLowerCase().includes(searchQuery.toLowerCase())
             )}
             selectedGroup={selectedGroup}
-            onGroupSelect={setSelectedGroup}
+            onGroupSelect={(id) => {
+              setSelectedGroup(id);
+              const group = groups.find((g) => g.id === id);
+              if (group) {
+                setEmails([...emails, ...group.members]);
+              }
+            }}
             onBack={handleBack}
             onConfirm={handleConfirm}
             confirmDisabled={selectedCard === "grupo" && !selectedGroup}
