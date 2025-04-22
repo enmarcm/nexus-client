@@ -54,11 +54,11 @@ const ContainerGraphics: React.FC<ContainerGraphicsProps> = ({
   const renderGraphic = (graphic: ConfigElement) => {
     const { type, configElements } = graphic;
     if (type === "linear") {
-      const linearData = configElements.data.map(item => ({
-        time: item.time!,
-        value: item.value
-      }));
-      return <LinearGraphics data={linearData} colors={configElements.colors} />;
+      // const linearData = configElements.data.map(item => ({
+      //   time: item.time!,
+      //   value: item.value
+      // }));
+      // return <LinearGraphics data={linearData} colors={configElements.colors} />;
     } else if (type === "donut") {
       const donutData = configElements.data.map(item => ({
         name: item.name!,
