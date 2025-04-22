@@ -8,8 +8,8 @@ import ConfirmDeleteModal from "../components/Modal/Templates/ConfirmDeleteModal
 import { useNavigate } from "react-router-dom";
 
 export enum StatusOptions {
-  EMAIL = "Email",
-  SMS = "SMS",
+  EMAIL = 1,
+  SMS = 2,
 }
 
 const Templates = () => {
@@ -47,7 +47,7 @@ const Templates = () => {
     setLoading(true);
     try {
       // Filtra los datos por tipo (Email o SMS)
-      const filtered = data.filter((item) => item.tipo === filterType);
+      const filtered = data.filter((item) => item.tipo == filterType);
       setFilteredData(filtered);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -114,7 +114,7 @@ const Templates = () => {
           <h2 className="font-semibold text-xl">FILTRAR POR</h2>
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as StatusOptions)}
+            onChange={(e) => setFilterType(e.target.value as unknown as StatusOptions)}
             className="border border-gray-300 rounded-md px-6 py-3 text-sm w-64 shadow-sm focus:ring-2 focus:ring-blue-300"
           >
             <option value={StatusOptions.EMAIL}>Email</option>
@@ -123,7 +123,7 @@ const Templates = () => {
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
-          <h3 className="text-lg font-semibold mb-4 capitalize">{filterType}</h3>
+          <h3 className="text-lg font-semibold mb-4 capitalize">{filterType == 1 ? "Email" : "SMS"}</h3>
           {loading ? (
             <p className="text-gray-500">Cargando datos...</p>
           ) : filteredData.length > 0 ? (
@@ -131,6 +131,7 @@ const Templates = () => {
               columns={COLUMNS_TABLE}
               data={filteredData.map((item) => ({
                 ...item,
+                tipo: item.tipo === StatusOptions.EMAIL ? "Email" : "SMS",
                 acciones: renderActions(item),
               }))}
             />
