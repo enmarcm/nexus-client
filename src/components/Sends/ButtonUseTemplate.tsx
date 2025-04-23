@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaFileAlt } from "react-icons/fa"; // Ícono para las plantillas
+import useFetcho from "../../customHooks/useFetcho"; // Hook para manejar la carga de datos
+import { API_URL } from "../../data/constants"; // Asegúrate de que esta ruta sea correcta
 
 interface ButtonUseTemplateProps {
   type: "email" | "sms"; // Tipo de plantilla (Email o SMS)
@@ -8,23 +10,62 @@ interface ButtonUseTemplateProps {
 
 const ButtonUseTemplate: React.FC<ButtonUseTemplateProps> = ({ type, setContent }) => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
-  const [templates, setTemplates] = useState<{ id: string; name: string; content: string }[]>([]); // Plantillas disponibles
+  const [templates, setTemplates] = useState<{
+    nombre: any; id: any; name: any; content: any 
+}[]>([]); // Plantillas disponibles
   const [loading, setLoading] = useState(false); // Estado de carga
   const [previewContent, setPreviewContent] = useState<string | null>(null); // Contenido para previsualización
+
+  const fetchWithLoading = useFetcho(); // Hook para manejar la carga de datos
 
   // Función para obtener las plantillas (pendiente de implementación)
   const fetchTemplates = async () => {
     setLoading(true);
     try {
       // Simulación de una llamada a la base de datos
+      const response = await fetchWithLoading({
+        url: `${API_URL}/toProcess`, // URL de la API
+        method: "POST",
+        body: {
+          object: "TEMPLATE",
+          method: "get_all_template",
+          // Filtrar por tipo (Email o SMS)
+        },
+      }) as any;
+
+      const dataParsed = response.templates.map((item: any) => {
+        let parsedContent;
+        
+        try {
+          parsedContent = JSON.parse(item.co_template); // Parsear el contenido de la plantilla
+        } catch (error) {
+          console.error("Error parsing template content:", error);
+          parsedContent = item.co_template; // Si no se puede parsear, establecer como null
+        }
+         return {
+          id: item.id_template,
+          nombre: item.de_template,
+          tipo: item.id_type, // Cambiar el tipo directamente a cualquier valor
+          content: parsedContent,
+        };
+      });
+
+      console.log("dataParsed", dataParsed);
+
       const fetchedTemplates = [
         { id: "1", name: "Plantilla 1", content: "Contenido de la plantilla 1", type: "email" },
         { id: "2", name: "Plantilla 2", content: "Contenido de la plantilla 2", type: "sms" },
         { id: "3", name: "Plantilla 3", content: "Contenido de la plantilla 3", type: "email" },
       ];
       // Filtrar plantillas según el tipo
-      const filteredTemplates = fetchedTemplates.filter((template) => template.type === type);
+      const filteredTemplates = dataParsed.filter((template: { tipo: number; }) => {
+        const templateType = template.tipo == 1 ? 'email' : 'sms';
+        console.log("tipo de template",templateType) // Map numeric type to string
+        console.log("type", type);
+        return templateType == type; // Compare string types
+      });
       setTemplates(filteredTemplates);
+      console.log("filteredTemplates", filteredTemplates);
     } catch (error) {
       console.error("Error fetching templates:", error);
     } finally {
@@ -80,12 +121,15 @@ const ButtonUseTemplate: React.FC<ButtonUseTemplateProps> = ({ type, setContent 
                     <li
                       key={template.id}
                       className="flex items-center gap-2 p-2 border border-gray-300 rounded hover:bg-gray-100 cursor-pointer"
-                      onMouseEnter={() => setPreviewContent(template.content)} // Mostrar previsualización
+                      onMouseEnter={() => {
+                        console.log("template", template.content?.content || template.content);
+                        setPreviewContent(template.content.content || template.content); // Mostrar previsualización
+                      }} // Mostrar previsualización
                       onMouseLeave={() => setPreviewContent(null)} // Limpiar previsualización
-                      onClick={() => handleSelectTemplate(template.content)} // Seleccionar plantilla
+                      onClick={() => handleSelectTemplate(template.content.content || template.content)} // Seleccionar plantilla
                     >
                       <FaFileAlt className="text-gray-500" /> {/* Ícono */}
-                      <span>{template.name}</span>
+                      <span>{template.nombre}</span>
                     </li>
                   ))}
                 </ul>
