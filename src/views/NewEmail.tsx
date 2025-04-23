@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import LoadFiles from "../components/Sends/LoadFiles";
@@ -7,186 +7,43 @@ import ButtonSend from "../components/Sends/ButtonSend";
 import ButtonUseTemplate from "../components/Sends/ButtonUseTemplate";
 import HTMLSelect from "../components/Sends/Mail/HTMLSelect";
 import TextEdit from "../components/Sends/TextEdit";
-import useFetcho from "../customHooks/useFetcho";
-import { API_URL } from "../data/constants";
-import * as XLSX from "xlsx"; // Para procesar archivos XLSX
 import { useEmailDataGlobal } from "../context/EmailDataGlobal";
+import useEmailSender from "../customHooks/useEmailSender";
 import "./css/NewEmail.css";
-
-interface RecipientData {
-  correo: string;
-  variables: Record<string, string | number>;
-}
+import ModalOptionsFiles from "../components/Modal/Mail/ModalOptionsFile";
 
 const NewEmail = () => {
-  const fetchWithLoading = useFetcho();
   const { state } = useEmailDataGlobal(); // Obtener datos del contexto global
-  const [editorType, setEditorType] = useState<"html" | "text">("html");
-  const [content, setContent] = useState(""); // Contenido del editor
-  const [variables, setVariables] = useState<string[]>([]); // Variables detectadas
-  const [loading, setLoading] = useState(false); // Estado de carga
-  const [responseMessage, setResponseMessage] = useState<string | null>(null); // Mensaje de respuesta
-  const [subject, setSubject] = useState(""); // Asunto del correo
-  const [isSending, setIsSending] = useState(false); // Estado para la animación de envío
-  const [fileLoaded, setFileLoaded] = useState(false); // Estado para el archivo cargado
-  const [recipientData, setRecipientData] = useState<RecipientData[]>([]); // Datos procesados del archivo
-  const [fileName, setFileName] = useState<string | null>(null); // Nombre del archivo cargado
-  const [attachments, setAttachments] = useState<File[]>([]); // Archivos adjuntos
-  const [showSuccessModal, setShowSuccessModal] = useState(false); // Estado para mostrar el modal de éxito
-  const navigate = useNavigate(); // Para redirigir después de la animación
+  const navigate = useNavigate();
 
-  const sendEmail = async (email: string, personalizedContent: string) => {
-    try {
-      const response = await fetchWithLoading({
-        url: `${API_URL}/toProcess`,
-        method: "POST",
-        body: {
-          object: "EMAIL",
-          method: "send_email",
-          params: [email, subject, personalizedContent],
-        },
-      });
-      console.log(`Correo enviado a ${email}:`, response);
-    } catch (error) {
-      console.error(`Error enviando correo a ${email}:`, error);
-    }
-  };
-
-  const handleFileUpload = async (file: File) => {
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      const data = e.target?.result;
-      if (file.type === "application/json") {
-        try {
-          const parsedData = JSON.parse(data as string);
-          if (Array.isArray(parsedData)) {
-            setRecipientData(parsedData);
-            setFileLoaded(true);
-            setFileName(file.name);
-            console.log("Datos cargados:", parsedData); // Mostrar los datos cargados en la consola
-          } else {
-            alert("El archivo JSON no tiene el formato correcto.");
-          }
-        } catch (error) {
-          alert("Error al leer el archivo JSON.");
-        }
-      } else if (
-        file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      ) {
-        const workbook = XLSX.read(data, { type: "binary" });
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const parsedData = XLSX.utils.sheet_to_json(sheet, {
-          header: 1,
-        }) as string[][];
-        const headers = parsedData[0];
-        const rows = parsedData.slice(1);
-        const formattedData = rows.map((row) => {
-          const correo = row[0] as string;
-          const variables = headers.slice(1).reduce((acc, header, index) => {
-            acc[header] = row[index + 1];
-            return acc;
-          }, {} as Record<string, string | number>);
-          return { correo, variables };
-        });
-        setRecipientData(formattedData);
-        setFileLoaded(true);
-        setFileName(file.name);
-        console.log("Datos cargados:", formattedData); // Mostrar los datos cargados en la consola
-      }
-    };
-
-    if (file.type === "application/json") {
-      reader.readAsText(file);
-    } else if (
-      file.type ===
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    ) {
-      reader.readAsBinaryString(file);
-    }
-  };
-
-  const handleAttachmentsUpload = (file: File) => {
-    setAttachments((prev) => [...prev, file]); // Agrega el archivo a los adjuntos
-    console.log("Archivo adjunto agregado:", file.name);
-  };
-
-  const replaceVariables = (
-    template: string,
-    variables: Record<string, string | number>
-  ) => {
-    let result = template;
-    Object.keys(variables).forEach((key) => {
-      const regex = new RegExp(`{{${key}}}`, "g");
-      result = result.replace(regex, String(variables[key]));
-    });
-    return result;
-  };
-
-  const handleSendEmails = async () => {
-    setLoading(true);
-    setResponseMessage(null);
-
-    try {
-      // Verificar si el contenido usa variables
-      const usesVariables = variables.length > 0;
-
-      // Validar si se requiere un archivo de datos
-      if (usesVariables && recipientData.length === 0) {
-        throw new Error(
-          "El contenido del correo utiliza variables, pero no se ha cargado un archivo con datos."
-        );
-      }
-
-      // Si no hay variables, enviar el correo a los destinatarios del contexto global
-      if (!usesVariables) {
-        if (state.emails.length === 0) {
-          throw new Error("No hay destinatarios para enviar el correo.");
-        }
-
-        for (const email of state.emails) {
-          if (email === "") continue;
-          console.log(`Enviando a ${email} sin variables.`);
-          await sendEmail(email, content); // Enviar el contenido tal cual
-        }
-      } else {
-        // Si hay variables, enviar correos personalizados
-        for (const recipient of recipientData) {
-          const personalizedContent = replaceVariables(
-            content,
-            recipient.variables
-          );
-          console.log(
-            `Enviando a ${recipient.correo} con contenido:`,
-            personalizedContent
-          );
-          await sendEmail(recipient.correo, personalizedContent);
-        }
-      }
-
-      // Muestra el modal de éxito
-      setShowSuccessModal(true);
-
-      // Espera 1.5 segundos para mostrar el mensaje
-      setTimeout(() => {
-        setShowSuccessModal(false);
-
-        // Inicia la animación y redirige después
-        setIsSending(true);
-        setTimeout(() => {
-          setIsSending(false);
-          navigate("/emails");
-        }, 2500); // Duración de la animación (2.5s)
-      }, 1500); // Duración del modal (1.5s)
-    } catch (error: any) {
-      console.error("Error al enviar los correos:", error);
-      setResponseMessage(error.message || "Error al enviar los correos.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    editorType,
+    setEditorType,
+    content,
+    setContent,
+    variables,
+    setVariables,
+    responseMessage,
+    subject,
+    setSubject,
+    isSending,
+    fileLoaded,
+    setFileLoaded,
+    recipientData,
+    setRecipientData,
+    fileName,
+    setFileName,
+    attachments,
+    handleFileUpload,
+    handleAttachmentsUpload,
+    handleSendEmails,
+    showSuccessModal,
+    showAttachmentModal,
+    setShowAttachmentModal, // Incluye esto
+    assignFilesToRecipients,
+    processFileAssignments,
+    setUseDataFileForAttachments,
+  } = useEmailSender(state.emails, navigate);
 
   return (
     <Layout title="Correos">
@@ -240,11 +97,15 @@ const NewEmail = () => {
           {/* Subir archivos y botón enviar */}
           <div className="w-full flex items-center gap-4 h-20">
             <div className="w-8/12 h-full">
-              <UploadAttachmentsChange onFileUpload={handleAttachmentsUpload} />
+              <UploadAttachmentsChange
+                onFileUpload={(files) =>{
+                  setShowAttachmentModal(true);
+                  handleAttachmentsUpload(files)}
+                } 
+              />
             </div>
             <div className="w-4/12 h-full">
-              <ButtonSend onClick={handleSendEmails} />{" "}
-              {/* loading={loading} Botón para enviar correos */}
+              <ButtonSend onClick={handleSendEmails} />
             </div>
           </div>
         </div>
@@ -257,16 +118,10 @@ const NewEmail = () => {
               Previsualización
             </h1>
             <div className="w-full h-full border border-gray-300 rounded-md p-2 overflow-auto bg-gray-50">
-              {editorType === "html" ? (
-                <div
-                  dangerouslySetInnerHTML={{ __html: content }} // Renderiza HTML
-                  className="text-gray-700 text-sm"
-                ></div>
-              ) : (
-                <pre className="text-gray-700 whitespace-pre-wrap text-sm">
-                  {content}
-                </pre>
-              )}
+              <div
+                dangerouslySetInnerHTML={{ __html: content }}
+                className="text-gray-700 text-sm"
+              ></div>
             </div>
           </div>
 
@@ -278,9 +133,7 @@ const NewEmail = () => {
             <ul className="list-disc list-inside text-gray-700 overflow-auto text-sm">
               {variables.length > 0 ? (
                 variables.map((variable, index) => (
-                  <li key={index} className="text-sm">
-                    {variable}
-                  </li>
+                  <li key={index}>{variable}</li>
                 ))
               ) : (
                 <p className="text-gray-500">No se han detectado variables.</p>
@@ -299,7 +152,6 @@ const NewEmail = () => {
                   className="text-red-500 text-sm hover:underline"
                   onClick={() => {
                     setFileLoaded(false);
-                    setRecipientData([]);
                     setFileName(null);
                   }}
                 >
@@ -330,6 +182,22 @@ const NewEmail = () => {
             </p>
           </div>
         </div>
+      )}
+
+      {/* Modal para asignar archivos */}
+      {showAttachmentModal && (
+       <ModalOptionsFiles
+       onAssignToAll={() => {
+        assignFilesToRecipients("all")
+        setUseDataFileForAttachments(false); // Desactivar el uso del archivo de datos
+       }} // Enviar los mismos archivos a todos
+       onUseDataFile={() => {
+         setUseDataFileForAttachments(true); // Activar el uso del archivo de datos
+         setShowAttachmentModal(false);
+       }}
+       onClose={() => setShowAttachmentModal(false)}
+       isDataFileLoaded={fileLoaded}
+     />
       )}
     </Layout>
   );

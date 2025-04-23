@@ -74,19 +74,29 @@ const StepContent: React.FC<StepContentProps> = ({
         } catch (error) {
           alert("Error al leer el archivo JSON.");
         }
-      } else if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+      } else if (
+        file.type ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ) {
         const workbook = XLSX.read(data, { type: "binary" });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
-        const parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as string[][];
-        const emailsFromXlsx = parsedData.map((row) => row[0]).filter((email) => typeof email === "string");
+        const parsedData = XLSX.utils.sheet_to_json(sheet, {
+          header: 1,
+        }) as string[][];
+        const emailsFromXlsx = parsedData
+          .map((row) => row[0])
+          .filter((email) => typeof email === "string");
         processEmails(emailsFromXlsx);
       }
     };
 
     if (file.type === "application/json") {
       reader.readAsText(file);
-    } else if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+    } else if (
+      file.type ===
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
       reader.readAsBinaryString(file);
     }
   };
@@ -104,7 +114,7 @@ const StepContent: React.FC<StepContentProps> = ({
       const updatedEmails = emails.slice(0, -1);
       onEmailChange(updatedEmails);
     }
-  
+
     // Confirmar la acción
     onConfirm();
   };
@@ -202,7 +212,9 @@ const StepContent: React.FC<StepContentProps> = ({
 
             {invalidEmails.length > 0 && (
               <div className="mt-4">
-                <h3 className="text-lg font-semibold text-red-600">Correos inválidos:</h3>
+                <h3 className="text-lg font-semibold text-red-600">
+                  Correos inválidos:
+                </h3>
                 <ul className="list-disc list-inside">
                   {invalidEmails.map((email, index) => (
                     <li key={index} className="text-red-600">
@@ -215,47 +227,50 @@ const StepContent: React.FC<StepContentProps> = ({
           </>
         )}
 
-{step === "grupo" && (
-  <>
-    <h2 className="text-xl font-semibold mb-4">Seleccionar Grupo</h2>
-    <p className="text-gray-600 mb-4">
-      Busca y selecciona un grupo de destinatarios:
-    </p>
-    <input
-  type="text"
-  placeholder="Buscar grupo"
-  className="w-full p-2 border border-gray-300 rounded mb-4"
-  value={searchQuery}
-  onChange={(e) => onSearchQueryChange(e.target.value)}
-/>
-<ul className="w-full border border-gray-300 rounded p-4">
-  {filteredGroups.map((group) => (
-    <li
-      key={group.id}
-      className={`relative group p-2 hover:bg-gray-100 cursor-pointer ${
-        selectedGroup === group.id ? "bg-purple-100" : ""
-      }`}
-      onClick={() => onGroupSelect(group.id)}
-    >
-      {group.name} - {group.members.length} destinatarios
-
-      {/* Tooltip para mostrar los correos */}
-      <div
-        className="absolute top-1/2 transform -translate-y-1/2 left-full ml-4 w-64 p-2 bg-white border border-gray-300 rounded shadow-lg text-sm text-gray-700 hidden group-hover:block z-10"
-        style={{ maxHeight: "200px", overflowY: "auto" }} // Scroll si hay muchos correos
-      >
-        <h3 className="font-semibold mb-2">Correos del grupo:</h3>
-        <ul className="list-disc list-inside">
-          {group.members.map((email, index) => (
-            <li key={index}>{email}</li>
-          ))}
-        </ul>
-      </div>
-    </li>
-  ))}
-</ul>
-  </>
-)}
+        {step === "grupo" && (
+          <>
+            <h2 className="text-xl font-semibold mb-4">Seleccionar Grupo</h2>
+            <p className="text-gray-600 mb-4">
+              Busca y selecciona un grupo de destinatarios:
+            </p>
+            <input
+              type="text"
+              placeholder="Buscar grupo"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              value={searchQuery}
+              onChange={(e) => onSearchQueryChange(e.target.value)}
+            />
+            <ul className="w-full border border-gray-300 rounded p-4 h-48 overflow-y-scroll overflow-x-hidden">
+              {filteredGroups.map((group) => (
+                <li
+                  key={group.id}
+                  className={`relative group p-2 hover:bg-gray-100 cursor-pointer ${
+                    selectedGroup === group.id ? "bg-purple-100" : ""
+                  }`}
+                  onClick={() => onGroupSelect(group.id)}
+                >
+                  {group.name} - {group.members.length} destinatarios
+                  {/* Tooltip para mostrar los correos */}
+                  <div
+                    className="fixed top-0 left-0 ml-4 w-64 p-2 bg-white border border-gray-300 rounded shadow-lg text-sm text-gray-700 hidden group-hover:block z-10"
+                    style={{
+                      maxHeight: "200px", // Altura máxima del tooltip
+                      overflowY: "auto", // Scroll si hay muchos correos
+                      transform: "translateY(calc(50vh - 200px))", // Centrar el tooltip en la pantalla
+                    }}
+                  >
+                    <h3 className="font-semibold mb-2">Correos del grupo:</h3>
+                    <ul className="list-disc list-inside">
+                      {group.members.map((email, index) => (
+                        <li key={index}>{email}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
 
       <div className="flex justify-between mt-4">
