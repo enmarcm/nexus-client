@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import LinearGraphics from "./LinearGraphics";
 import DonutGraphics from "./DonutGraphics";
 import '../css/ContainerGraphics.css';
+import { config } from "process";
 
 interface ConfigElement {
   title: string;
@@ -53,13 +54,21 @@ const ContainerGraphics: React.FC<ContainerGraphicsProps> = ({
 
   const renderGraphic = (graphic: ConfigElement) => {
     const { type, configElements } = graphic;
+
+    if(!configElements.data || configElements.data.length === 0) return 
+  
     if (type === "linear") {
+      if(!configElements.data) return
       const linearData = configElements.data.map(item => ({
         time: item.time!,
         value: item.value
       }));
+
+      
       return <LinearGraphics data={linearData} colors={configElements.colors} />;
     } else if (type === "donut") {
+      if(!configElements.data) return
+
       const donutData = configElements.data.map(item => ({
         name: item.name!,
         value: item.value,

@@ -108,9 +108,9 @@ const DonutGraphics: React.FC<DonutGraphicsProps> = ({
       ref={chartRef}
       style={{
         marginTop: "-1.2rem",
-        width,
-        height,
-        minHeight: "3.2rem", 
+        width: width || "100%",
+        height: height || "15rem",
+        minHeight: "3.2rem",
       }}
     />
   );

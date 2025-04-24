@@ -177,7 +177,7 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             onEmailChange={(updatedEmails) => {
               setEmails(updatedEmails);
             }}
-            validateEmail={(email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
+            validateEmail={(email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)}
             dragging={dragging}
             uploadedFile={uploadedFile}
             onFileDrop={(e) => {
