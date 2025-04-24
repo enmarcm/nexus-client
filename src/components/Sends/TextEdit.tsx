@@ -7,10 +7,12 @@ const TextEdit = ({
   setVariables,
 }: {
   editorType: "html" | "text";
-  content: string;
+  content: any;
   setContent: (value: string) => void;
   setVariables: (variables: string[]) => void;
 }) => {
+  console.log("content", content);
+  console.log("editorType", editorType);
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (editorType === "html") {
       const { key } = e;

@@ -4,29 +4,30 @@ import Layout from "../components/Layout";
 import TextEdit from "../components/Sends/TextEdit";
 import HTMLSelect from "../components/Sends/Mail/HTMLSelect";
 import ButtonSend from "../components/Sends/ButtonSend";
+import useFetcho from "../customHooks/useFetcho";
+import { API_URL } from "../data/constants"; // Asegúrate de importar la constante API_URL
 
 const NewTemplate = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { tipo, nombre } = location.state || { tipo: "email", nombre: "Nueva Plantilla" }; // Datos recibidos
 
-  const [templateType] = useState<"email" | "sms">(tipo.toLowerCase() as "email" | "sms");
+  const [templateType] = useState<1 | 2>(tipo as 1 | 2);
   const [editorType, setEditorType] = useState<"html" | "text">("html");
   const [content, setContent] = useState("");
   const [variables, setVariables] = useState<string[]>([]);
+  const fetchWithLoading = useFetcho();
 
   const handleSave = async () => {
     try {
       // Simula una llamada al backend para guardar la plantilla
-      const templateData = {
-        nombre,
-        tipo: templateType,
-        editorType: templateType === "email" ? editorType : "text",
+      const co_template = {
+        editorType: templateType === 1 ? editorType : "text",
         content,
         variables,
       };
 
-      console.log("Guardando plantilla:", templateData);
+      console.log("Guardando plantilla:", co_template);
 
       // Aquí puedes hacer una llamada al backend
       // Ejemplo:
@@ -35,6 +36,21 @@ const NewTemplate = () => {
       //   headers: { "Content-Type": "application/json" },
       //   body: JSON.stringify(templateData),
       // });
+
+        await fetchWithLoading({
+          url: `${API_URL}/toProcess`,
+          method: "POST",
+          body: {
+            object: "TEMPLATE",
+            method: "create_template",
+            params: {
+              id_user: 2,
+              de_template: nombre,
+              co_template: co_template,
+              id_type: Number.parseInt(templateType.toString()),
+            },
+          },
+        })
 
       // Redirige al usuario de vuelta a la lista de plantillas
       navigate("/template", { state: { success: true } });
@@ -54,15 +70,15 @@ const NewTemplate = () => {
         <div className="w-8/12 h-full flex flex-col bg-white rounded-md shadow-lg p-6 gap-6">
           <div className="w-full flex items-center justify-between">
             <h1 className="text-xl font-bold text-gray-700">
-              Editor de {templateType === "email" ? "Email" : "SMS"}
+              Editor de {templateType === 1 ? "Email" : "SMS"}
             </h1>
-            {templateType === "email" && (
+            {templateType === 1 && (
               <HTMLSelect editorType={editorType} setEditorType={setEditorType} />
             )}
           </div>
 
           <TextEdit
-            editorType={templateType === "email" ? editorType : "text"}
+            editorType={templateType === 1 ? editorType : "text"}
             content={content}
             setContent={setContent}
             setVariables={setVariables}
@@ -81,14 +97,14 @@ const NewTemplate = () => {
               <strong>Nombre:</strong> {nombre}
             </p>
             <p className="text-sm text-gray-600">
-              <strong>Tipo:</strong> {templateType === "email" ? "Email" : "SMS"}
+              <strong>Tipo:</strong> {templateType === 1 ? "Email" : "SMS"}
             </p>
           </div>
 
           <div className="w-full h-2/5 flex flex-col gap-4 p-6 bg-gray-50 rounded-md shadow-md">
             <h2 className="text-lg font-semibold text-gray-700">Previsualización</h2>
             <div className="w-full h-full border border-gray-300 rounded-md p-4 overflow-auto bg-gray-100">
-              {templateType === "email" && editorType === "html" ? (
+              {templateType === 1 && editorType === "html" ? (
                 <div
                   dangerouslySetInnerHTML={{ __html: content }}
                   className="text-gray-700"
