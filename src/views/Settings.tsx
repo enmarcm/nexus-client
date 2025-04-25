@@ -2,26 +2,31 @@ import React, { useState } from "react";
 import Layout from "../components/Layout";
 import { FaUserCircle, FaKey, FaEnvelope, FaPhone } from "react-icons/fa";
 import ChangePassModal from "../components/Modal/Settings/ChangePassModal";
+import SuccessModal from "../components/Modal/Settings/SuccessModal"; // Modal de éxito
+import useFetcho from "../customHooks/useFetcho";
+import useSession from "../customHooks/useSession";
+import { API_URL } from "../data/constants";
 
 const Settings = () => {
-  const [userInfo, setUserInfo] = useState({
-    name: "Juan Pérez",
-    email: "juan.perez@example.com",
-  });
+  const fetchWithLoading = useFetcho();
+  const { sessionData } = useSession();
 
   const [emails] = useState(["correo1@example.com", "correo2@example.com"]);
   const [phones] = useState(["+123456789", "+987654321"]);
 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Estado para el modal de éxito
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
   const validatePassword = (password: string) => {
-    const passwordPattern =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return passwordPattern.test(password);
+    // const passwordPattern =
+    //   /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    // return passwordPattern.test(password);
+
+    return password.length >= 8 
   };
 
   const handleChangePassword = async () => {
@@ -38,23 +43,28 @@ const Settings = () => {
     }
 
     try {
-      // Simula una llamada a la API para cambiar la contraseña
-      const response = await fetch("/api/user/password", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
+      const response = (await fetchWithLoading({
+        url: `${API_URL}/auth/updatePassword`,
+        method: "POST",
+        body: {
+          email: sessionData.user.email,
+          oldPassword: currentPassword,
+          newPassword,
+        },
+      })) as any;
 
-      if (response.ok) {
-        alert("Contraseña actualizada correctamente.");
-        setIsPasswordModalOpen(false);
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setPasswordError("");
-      } else {
-        throw new Error("No se pudo cambiar la contraseña.");
+      if (response?.error || !response) {
+        setPasswordError("Error al cambiar la contraseña. Inténtalo de nuevo.");
+        return;
       }
+
+      // Restablecer estados y mostrar modal de éxito
+      setIsPasswordModalOpen(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordError("");
+      setIsSuccessModalOpen(true); // Mostrar modal de éxito
     } catch (error) {
       console.error("Error al cambiar la contraseña:", error);
       setPasswordError(
@@ -79,10 +89,10 @@ const Settings = () => {
           </div>
           <div className="flex flex-col gap-4">
             <p className="text-gray-600">
-              <strong>Nombre:</strong> {userInfo.name}
+              <strong>Nombre:</strong> {sessionData.user.name}
             </p>
             <p className="text-gray-600">
-              <strong>Correo:</strong> {userInfo.email}
+              <strong>Correo:</strong> {sessionData.user.email}
             </p>
           </div>
           <button
@@ -142,6 +152,14 @@ const Settings = () => {
           setCurrentPassword={setCurrentPassword}
           setNewPassword={setNewPassword}
           setConfirmPassword={setConfirmPassword}
+        />
+      )}
+
+      {/* Modal de éxito */}
+      {isSuccessModalOpen && (
+        <SuccessModal
+          message="¡Contraseña cambiada exitosamente!"
+          onClose={() => setIsSuccessModalOpen(false)}
         />
       )}
     </Layout>
