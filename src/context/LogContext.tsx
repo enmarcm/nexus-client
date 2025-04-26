@@ -24,7 +24,7 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     ws.onmessage = (event) => {
-      console.log("Mensaje recibido desde WebSocket:", event.data);
+      // console.log("Mensaje recibido desde WebSocket:", event.data);
 
       const logData = JSON.parse(event.data);
       const newLog: LogEntry = {

@@ -20,7 +20,7 @@ const useFetcho = () => {
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
           reject(new Error("Operation timed out after 10 seconds"));
-        }, 6000);
+        }, 30000);
       });
 
       const data = await Promise.race([

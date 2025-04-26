@@ -4,11 +4,12 @@ interface EditGroupModalProps {
   group: any;
   onSave: (updatedGroup: any) => void;
   onCancel: () => void;
+  onEditMembers: (group: any) => void;
 }
 
-const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onSave, onCancel }) => {
+const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onSave, onCancel, onEditMembers }) => {
   const [formData, setFormData] = useState(group);
-
+  console.log("formData", formData);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
@@ -16,6 +17,7 @@ const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onSave, onCancel
 
   const handleSubmit = () => {
     onSave(formData);
+    console.log("formData", formData);
   };
 
   return (
@@ -41,6 +43,14 @@ const EditGroupModal: React.FC<EditGroupModalProps> = ({ group, onSave, onCancel
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded"
           />
+
+          <button
+            className="mt-2 text-blue-500 hover:text-blue-700"
+            onClick={() => onEditMembers(formData)}
+          >
+            Editar Miembros
+
+          </button>
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Estado</label>

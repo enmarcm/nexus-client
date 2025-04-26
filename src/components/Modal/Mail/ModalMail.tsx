@@ -39,6 +39,7 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       const smsGroups = response.filter(
         (item: any) => item.de_type === "email"
       );
+      console.log("Grupos SMS:", smsGroups);
 
       // Usar Promise.all para obtener los miembros de los grupos filtrados
       const mappedResponse = await Promise.all(
@@ -56,7 +57,7 @@ const ModalMail: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           })) as any;
 
           const members = membersResponse.map((member: any) => member.content);
-
+          console.log("totales:", item)
           return {
             id: item.id_group,
             name: item.de_group,
